@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <optional>
 #include <numeric>
+#include <random>
 
 namespace jmixin {
 
@@ -16,6 +17,12 @@ class Iterator : public Container {
         Iterator(const Container &container):
             Container(container)
         {
+        }
+
+        template<typename Predicate>
+        std::size_t count(Predicate predicate)
+        {
+            return std::count_if(std::begin(*this), std::end(*this), predicate);
         }
 
         template<typename Predicate>
@@ -133,8 +140,16 @@ class Iterator : public Container {
             return Iterator<Container>(result);
         }
 
+        template<typename Predicate>
+        Iterator<Container> & fill(typename Container::value_type value)
+        {
+            std::fill(std::begin(*this), std::end(*this), value);
+
+            return *this;
+        }
+
         template<typename Callback>
-        Iterator<Container> for_each(Callback callback)
+        Iterator<Container> & for_each(Callback callback)
         {
             std::for_each(std::begin(*this), std::end(*this), callback);
 
@@ -175,16 +190,11 @@ class Iterator : public Container {
             return Iterator<Container>(result);
         }
 
-        Iterator<Container> reverse()
+        Iterator<Container> & reverse()
         {
-            Container result;
+            std::reverse(std::begin(*this), std::end(*this));
 
-            std::for_each(std::begin(*this), std::end(*this),
-                    [&result](const auto &item) {
-                        result.insert(std::begin(result), item);
-                    });
-
-            return Iterator<Container>(result);
+            return *this;
         }
 
         Iterator<Container> copy()
@@ -194,6 +204,66 @@ class Iterator : public Container {
             std::copy(std::begin(*this), std::end(*this), std::back_inserter(result));
 
             return Iterator<Container>(result);
+        }
+
+        Iterator<Container> & shuffle()
+        {
+            std::random_device rd;
+            std::mt19937 g(rd());
+
+            std::shuffle(std::begin(*this), std::end(*this), g);
+
+            return *this;
+        }
+
+        Iterator<Container> sample(std::size_t n)
+        {
+            Container result;
+
+            if (n > std::size(*this)) {
+                n = std::size(*this);
+            }
+            
+            std::random_device rd;
+            std::mt19937 g(rd());
+
+            std::sample(std::begin(*this), std::end(*this), std::back_inserter(result), n, g);
+
+            return Iterator<Container>(result);
+        }
+
+        Iterator<Container> & lrotate(std::size_t n)
+        {
+            std::rotate(std::begin(*this), std::begin(*this) + n, std::end(*this));
+
+            return *this;
+        }
+
+        Iterator<Container> & rrotate(std::size_t n)
+        {
+            std::rotate(std::rbegin(*this), std::rbegin(*this) + n, std::rend(*this));
+
+            return *this;
+        }
+
+        std::vector<std::pair<std::size_t, typename Container::value_type>> enumerate()
+        {
+            std::vector<std::pair<std::size_t, typename Container::value_type>> result;
+            std::size_t i {0};
+
+            for (const auto &item : *this) {
+                result.push_back(std::make_pair(i++, item));
+            }
+
+            return Iterator<std::vector<std::pair<std::size_t, typename Container::value_type>>>(result);
+        }
+
+        template<typename Container2>
+        Iterator<Container> & swap(Container2 other)
+        {
+            std::swap(*this, other);
+
+            return *this;
         }
 
         std::optional<typename Container::value_type> first()
@@ -289,7 +359,7 @@ class Iterator : public Container {
             auto i = std::find_if(std::begin(*this), std::end(*this), predicate);
 
             if (i != std::end(*this)) {
-                return {i - std::begin(*this)};
+                return {std::distance(std::begin(*this), i)};
             }
 
             return {};
@@ -304,14 +374,83 @@ class Iterator : public Container {
         template<typename Predicate>
         bool any(Predicate predicate)
         {
-            return std::all_of(std::begin(*this), std::end(*this), predicate);
+            return std::any_of(std::begin(*this), std::end(*this), predicate);
         }
 
-        Iterator<Container> sort()
+        template<typename Predicate>
+        bool none(Predicate predicate)
+        {
+            return std::none_of(std::begin(*this), std::end(*this), predicate);
+        }
+
+        Iterator<Container> & sort()
         {
             std::sort(std::begin(*this), std::end(*this));
 
             return *this;
+        }
+
+        Iterator<Container> & unique()
+        {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+                throw std::runtime_error("Container must be sorted");
+            }
+
+            this->erase(std::unique(std::begin(*this), std::end(*this)), std::end(*this));
+
+            return *this;
+        }
+
+        template<typename Container2>
+        bool includes(Container2 other)
+        {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+                throw std::runtime_error("Container must be sorted");
+            }
+
+            return std::includes(std::begin(*this), std::end(*this), std::begin(other), std::end(other));
+        }
+
+        template<typename Container2>
+        Iterator<Container> difference(Container2 other)
+        {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+                throw std::runtime_error("Container must be sorted");
+            }
+
+            Container result;
+
+            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+
+            return result;
+        }
+
+        template<typename Container2>
+        Iterator<Container> intersection(Container2 other)
+        {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+                throw std::runtime_error("Container must be sorted");
+            }
+
+            Container result;
+
+            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+
+            return result;
+        }
+
+        template<typename Container2>
+        Iterator<Container> union_set(Container2 other)
+        {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+                throw std::runtime_error("Container must be sorted");
+            }
+
+            Container result;
+
+            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+
+            return result;
         }
 
 };
