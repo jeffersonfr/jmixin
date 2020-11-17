@@ -130,14 +130,14 @@ class Iterator : public Container {
             return std::accumulate(std::begin(*this), std::end(*this), value, predicate);
         }
 
-        template<typename Predicate>
-        Iterator<Container> map(Predicate predicate)
+        template<typename ResultContainer = Container, typename Predicate>
+        Iterator<ResultContainer> map(Predicate predicate)
         {
-            Container result;
+            ResultContainer result;
 
             std::transform(std::begin(*this), std::end(*this), std::back_inserter(result), predicate);
 
-            return Iterator<Container>(result);
+            return Iterator<ResultContainer>(result);
         }
 
         template<typename Predicate>

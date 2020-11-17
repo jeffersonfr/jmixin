@@ -1,5 +1,7 @@
 #include "jiterator.hpp"
 
+#include <list>
+
 int main()
 {
     std::cout << jmixin::Iterator(std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9})
@@ -10,8 +12,8 @@ int main()
 
                 return true;
                 })
-        .map([](const auto &item) {
-                return item*2;
+        .map<std::list<int>>([i=0](const auto &item) mutable {
+                return ++i*item;
                 })
         .reverse()
         .for_each([](const auto &item) {
