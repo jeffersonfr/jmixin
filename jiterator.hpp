@@ -30,7 +30,7 @@ class Iterator : public Container {
         {
             Container result;
 
-            std::copy_if(std::begin(*this), std::end(*this), std::back_inserter(result), predicate);
+            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), predicate);
 
             return Iterator<Container>(result);
         }
@@ -40,7 +40,7 @@ class Iterator : public Container {
             Container result;
             std::size_t i {0};
 
-            std::copy_if(std::begin(*this), std::end(*this), std::back_inserter(result), 
+            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
                     [&i, n](auto const &item) {
                         if ((i++ % n) == 0) {
                             return true;
@@ -135,7 +135,7 @@ class Iterator : public Container {
         {
             ResultContainer result;
 
-            std::transform(std::begin(*this), std::end(*this), std::back_inserter(result), predicate);
+            std::transform(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), predicate);
 
             return Iterator<ResultContainer>(result);
         }
@@ -161,7 +161,7 @@ class Iterator : public Container {
             Container result;
             std::size_t i {0};
 
-            std::copy_if(std::begin(*this), std::end(*this), std::back_inserter(result), 
+            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
                     [&i, n](auto const &item) {
                         if (++i > n) {
                             return true;
@@ -178,7 +178,7 @@ class Iterator : public Container {
             Container result;
             std::size_t i {0};
 
-            std::copy_if(std::begin(*this), std::end(*this), std::back_inserter(result), 
+            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
                     [&i, n](auto const &item) {
                         if (i++ < n) {
                             return true;
@@ -201,7 +201,7 @@ class Iterator : public Container {
         {
             Container result;
 
-            std::copy(std::begin(*this), std::end(*this), std::back_inserter(result));
+            std::copy(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)));
 
             return Iterator<Container>(result);
         }
@@ -227,7 +227,7 @@ class Iterator : public Container {
             std::random_device rd;
             std::mt19937 g(rd());
 
-            std::sample(std::begin(*this), std::end(*this), std::back_inserter(result), n, g);
+            std::sample(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), n, g);
 
             return Iterator<Container>(result);
         }
@@ -383,9 +383,10 @@ class Iterator : public Container {
             return std::none_of(std::begin(*this), std::end(*this), predicate);
         }
 
-        Iterator<Container> & sort()
+        template<typename Compare = std::less<>>
+        Iterator<Container> & sort(Compare compare = Compare())
         {
-            std::sort(std::begin(*this), std::end(*this));
+            std::sort(std::begin(*this), std::end(*this), compare);
 
             return *this;
         }
@@ -420,7 +421,7 @@ class Iterator : public Container {
 
             Container result;
 
-            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
 
             return result;
         }
@@ -434,7 +435,7 @@ class Iterator : public Container {
 
             Container result;
 
-            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
 
             return result;
         }
@@ -448,7 +449,7 @@ class Iterator : public Container {
 
             Container result;
 
-            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::back_inserter(result));
+            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
 
             return result;
         }
