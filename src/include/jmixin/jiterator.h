@@ -234,6 +234,15 @@ namespace jmixin {
           return Iterator<Container>(result);
         }
 
+        Iterator<Container> chop(std::size_t n = 1)
+        {
+          Container result;
+
+          std::copy(std::begin(*this), std::end(*this) - n, std::inserter(result, std::begin(result)));
+
+          return Iterator<Container>(result);
+        }
+
         Iterator<Container> & reverse()
         {
           std::reverse(std::begin(*this), std::end(*this));
@@ -500,6 +509,29 @@ namespace jmixin {
 
             return *this;
           }
+
+        Iterator<std::vector<Container>> breaks(std::size_t n)
+        {
+          std::vector<Container> result;
+
+          for (const auto &item : *this) {
+            if (result.size() == 0) {
+              result.push_back(Container{});
+            }
+
+            Container *container = &result.back();
+
+            if (container->size() >= n) {
+              result.push_back(Container{});
+
+              container = &result.back();
+            }
+
+            container->insert(std::begin(*container), item);
+          }
+
+          return Iterator<std::vector<Container>>{result};
+        }
 
     };
 

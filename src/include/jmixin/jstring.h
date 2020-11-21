@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <optional>
 #include <regex>
+#include <initializer_list>
 
 namespace jmixin {
 
@@ -115,16 +116,38 @@ namespace jmixin {
         return std::regex_replace(*this, r, value);
       }
 
-      bool match(const String &pattern)
+      bool match(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
       {
-        const std::regex r{pattern};
+        const std::regex r{pattern, flags};
 
         return std::regex_match(*this, r);
       }
 
-      Iterator<std::vector<String>> search(const String &pattern)
+      bool match_any(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
       {
-        const std::regex r(pattern);
+        for (auto &pattern : patterns) {
+          if (match(pattern, flags) == true) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      bool match_none(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      {
+        for (auto &pattern : patterns) {
+          if (match(pattern, flags) == true) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      Iterator<std::vector<String>> search(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      {
+        const std::regex r(pattern, flags);
         
         std::vector<String> result;
         std::smatch matches;
@@ -139,49 +162,129 @@ namespace jmixin {
         return Iterator{result};
       }
 
-      bool contains(String value)
+      bool contains(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
       {
-        if (this->find(value) != std::string::npos) {
+        if (search(pattern, flags).size() > 0) {
           return true;
         }
 
         return false;
+      }
+
+      bool contains_any(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      {
+        for (auto &value : values) {
+          if (contains(value, flags) == true) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      bool contains_none(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      {
+        for (auto &value : values) {
+          if (contains(value, flags) == true) {
+            return false;
+          }
+        }
+
+        return true;
       }
 
       bool starts_with(const String &value)
       {
-        if (std::find_first_of(std::begin(*this), std::end(*this), std::begin(value), std::end(value)) == std::begin(*this)) {
-          return true;
+        if (value.size() > this->size()) {
+          return false;
+        }
+
+        std::string::iterator i = std::begin(*this);
+        std::string::const_iterator j = std::cbegin(value);
+
+        for (; i!=std::end(*this) and j!=std::cend(value);) {
+          if (*i++ != *j++) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      bool starts_with_any(std::initializer_list<String> values) {
+        for (auto &value : values) {
+          if (starts_with(value) == true) {
+            return true;
+          }
         }
 
         return false;
+      }
+
+      bool starts_with_none(std::initializer_list<String> values) {
+        for (auto &value : values) {
+          if (starts_with(value) == true) {
+            return false;
+          }
+        }
+
+        return true;
       }
 
       bool ends_with(const String &value)
       {
-        if (static_cast<std::size_t>(std::distance(std::begin(*this), std::find_end(std::begin(*this), std::end(*this), std::begin(value), std::end(value)))) == value.size()) {
-          return true;
+        if (value.size() > this->size()) {
+          return false;
+        }
+
+        std::string::iterator i = std::begin(*this) + std::size(*this) - std::size(value);
+        std::string::const_iterator j = std::cbegin(value);
+
+        for (; i!=std::end(*this) and j!=std::end(value);) {
+          if (*i++ != *j++) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      bool ends_with_any(std::initializer_list<String> values) {
+        for (auto &value : values) {
+          if (ends_with(value) == true) {
+            return true;
+          }
         }
 
         return false;
       }
 
-      String & append_if_missing(const String &value)
-      {
-        if (this->ends_with(value) == false) {
-          *this = *this + value;
+      bool ends_with_none(std::initializer_list<String> values) {
+        for (auto &value : values) {
+          if (ends_with(value) == true) {
+            return false;
+          }
         }
 
-        return *this;
+        return true;
       }
 
-      String & prepend_if_missing(const String &value)
+      String append_if_missing(const String &value)
       {
-        if (this->starts_with(value) == false) {
-          *this = value + *this;
+        if (contains(value + "$") == true) {
+          return *this;
         }
 
-        return *this;
+        return *this + value;
+      }
+
+      String prepend_if_missing(const String &value)
+      {
+        if (contains("^" + value) == true) {
+          return *this;
+        }
+
+        return value + *this;
       }
 
       String repeat(std::size_t n)
@@ -242,6 +345,21 @@ namespace jmixin {
         }
 
         return std::string(padding/2, fill) + *this + std::string(padding/2 + padding%2, fill);
+      }
+
+      String left(std::size_t length, const char fill = ' ')
+      {
+        return align(align::left, length, fill);
+      }
+
+      String right(std::size_t length, const char fill = ' ')
+      {
+        return align(align::right, length, fill);
+      }
+
+      String center(std::size_t length, const char fill = ' ')
+      {
+        return align(align::center, length, fill);
       }
 
       String ellipses(std::size_t length, const String &value = String("..."))
