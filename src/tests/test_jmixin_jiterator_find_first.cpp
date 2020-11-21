@@ -6,7 +6,7 @@
 int main()
 {
   if (jmixin::Iterator(std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9})
-    .find([](const auto &item) {
+    .find_first([](const auto &item) {
         if (item > 3) {
             return true;
         }

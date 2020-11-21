@@ -10,10 +10,6 @@ option(PROFILE "Enable profile" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(PkgConfig REQUIRED)
-  pkg_check_modules(CAIRO REQUIRED cairo)
-add_definitions(${CAIRO_CFLAGS})
-
 if (DEBUG)
   add_definitions("-g3 -ggdb3 -Wall")
 endif()

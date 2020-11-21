@@ -325,7 +325,7 @@ namespace jmixin {
         }
 
         template<typename Predicate>
-          std::optional<typename Container::value_type> find(Predicate predicate)
+          std::optional<typename Container::value_type> find_first(Predicate predicate)
           {
             auto i = std::find_if(std::begin(*this), std::end(*this), predicate);
 
