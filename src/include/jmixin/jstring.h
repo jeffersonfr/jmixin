@@ -440,4 +440,16 @@ namespace jmixin {
 
   };
 
+  template<typename Container>
+    String join(const Container &values, String aggregate = String{","})
+    {
+      std::string result;
+
+      for (const auto &value : values) {
+        result = result + value + aggregate;
+      }
+
+      return result.substr(0, result.size() - aggregate.size());
+    }
+
 }

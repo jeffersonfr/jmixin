@@ -170,9 +170,17 @@ namespace jmixin {
           }
 
         template<typename Callback>
-          Iterator<Container> & for_each(Callback callback)
+          Iterator<Container> & for_each(Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
           {
+            if (begin) {
+              begin();
+            }
+
             std::for_each(std::begin(*this), std::end(*this), callback);
+
+            if (end) {
+              end();
+            }
 
             return *this;
           }
@@ -531,6 +539,19 @@ namespace jmixin {
           }
 
           return Iterator<std::vector<Container>>{result};
+        }
+
+        Iterator<typename Container::value_type> flatten()
+        {
+          typename Container::value_type result;
+
+          for (const auto &item : *this) {
+            for (const auto &value : item) {
+              result.push_back(value);
+            }
+          }
+
+          return result;
         }
 
     };
