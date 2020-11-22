@@ -18,6 +18,8 @@ namespace jmixin {
   class String : public std::string {
 
     public:
+      String() = default;
+
       String(const char *str):
         std::string(str)
       {
@@ -109,11 +111,18 @@ namespace jmixin {
         return left_trim().right_trim();
       }
 
-      String replace(const String &pattern, const String value)
+      String replace(const String &pattern, const String &value)
+      {
+        const std::regex r{pattern, std::regex_constants::nosubs | std::regex_constants::extended};
+
+        return std::regex_replace(*this, r, value);
+      }
+
+      String replace_groups(const String &pattern, const String &format, std::regex_constants::match_flag_type flags = std::regex_constants::match_default)
       {
         const std::regex r{pattern, std::regex_constants::extended};
 
-        return std::regex_replace(*this, r, value);
+        return std::regex_replace(*this, r, format, flags);
       }
 
       bool match(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
@@ -389,6 +398,36 @@ namespace jmixin {
       String remove(const String &value)
       {
         return this->replace(value, "");
+      }
+
+      bool is_blank()
+      {
+        return match("[[:blank:]]*") or match("[[:space:]]*");
+      }
+
+      bool is_lower_case()
+      {
+        return match("[[:lower:][:digit:][:graph:][:punct:][:space:]]*");
+      }
+
+      bool is_upper_case()
+      {
+        return match("[[:upper:][:digit:][:graph:][:punct:][:space:]]*");
+      }
+
+      bool is_alpha()
+      {
+        return match("[[:alpha:]]*");
+      }
+
+      bool is_number()
+      {
+        return match("[[:digit:]]*.?[[:digit:]]*");
+      }
+
+      bool is_alpha_numeric()
+      {
+        return match("[[:alnum:]]*");
       }
 
       /* -std=c++20 still not working
