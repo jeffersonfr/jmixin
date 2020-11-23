@@ -23,7 +23,7 @@ namespace jmixin {
         {
           Container result;
 
-          std::copy(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)));
+          std::copy(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)));
 
           return Iterator<Container>(result);
         }
@@ -39,7 +39,7 @@ namespace jmixin {
           {
             Container result;
 
-            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), predicate);
+            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), predicate);
 
             return Iterator<Container>(result);
           }
@@ -49,7 +49,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
+          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
               [&i, n](auto const &item) {
               if ((i++ % n) == 0) {
               return true;
@@ -196,7 +196,7 @@ namespace jmixin {
           {
             ResultContainer result;
 
-            std::transform(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), predicate);
+            std::transform(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), predicate);
 
             return Iterator<ResultContainer>(result);
           }
@@ -213,7 +213,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
+          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
               [&i, n](auto const &item) {
               if (++i > n) {
                 return true;
@@ -230,7 +230,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), 
+          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
               [&i, n](auto const &item) {
               if (i++ < n) {
                 return true;
@@ -246,7 +246,7 @@ namespace jmixin {
         {
           Container result;
 
-          std::copy(std::begin(*this), std::end(*this) - n, std::inserter(result, std::begin(result)));
+          std::copy(std::begin(*this), std::end(*this) - n, std::inserter(result, std::end(result)));
 
           return Iterator<Container>(result);
         }
@@ -279,7 +279,7 @@ namespace jmixin {
           std::random_device rd;
           std::mt19937 g(rd());
 
-          std::sample(std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)), n, g);
+          std::sample(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), n, g);
 
           return Iterator<Container>(result);
         }
@@ -463,7 +463,7 @@ namespace jmixin {
 
             Container result;
 
-            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
+            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -487,7 +487,7 @@ namespace jmixin {
 
             Container result;
 
-            std::set_difference(std::begin(other), std::end(other), std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)));
+            std::set_difference(std::begin(other), std::end(other), std::begin(*this), std::end(*this), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -501,7 +501,7 @@ namespace jmixin {
 
             Container result;
 
-            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
+            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -515,7 +515,7 @@ namespace jmixin {
 
             Container result;
 
-            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
+            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -529,13 +529,21 @@ namespace jmixin {
 
             Container result;
 
-            std::merge(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::begin(result)));
+            std::merge(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
 
         template<typename Container2>
           Iterator<Container> & append(Container2 other)
+          {
+            std::copy(std::begin(other), std::end(other), std::inserter(*this, std::end(*this)));
+
+            return *this;
+          }
+
+        template<typename Container2>
+          Iterator<Container> & prepend(Container2 other)
           {
             std::copy(std::begin(other), std::end(other), std::inserter(*this, std::begin(*this)));
 
