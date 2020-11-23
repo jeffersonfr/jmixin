@@ -467,6 +467,30 @@ namespace jmixin {
 
             return result;
           }
+        
+        template<typename Predicate>
+        Iterator<Container> & generate(Predicate predicate, std::size_t n)
+        {
+          for (std::size_t i=0; i<n; i++) {
+            this->insert(std::end(*this), predicate());
+          }
+
+          return *this;
+        }
+        
+        template<typename Container2>
+          Iterator<Container> complement(Container2 other)
+          {
+            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+              throw std::runtime_error("Container must be sorted");
+            }
+
+            Container result;
+
+            std::set_difference(std::begin(other), std::end(other), std::begin(*this), std::end(*this), std::inserter(result, std::begin(result)));
+
+            return result;
+          }
 
         template<typename Container2>
           Iterator<Container> intersection(Container2 other)
