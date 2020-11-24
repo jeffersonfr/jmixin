@@ -129,3 +129,5 @@ module_test(jstring_left)
 module_test(jstring_right)
 module_test(jstring_center)
 module_test(jstring_join)
+
+module_test(megasena)

@@ -11,7 +11,7 @@ option(PROFILE "Enable profile" OFF)
 set(CMAKE_CXX_STANDARD 20)
 
 if (DEBUG)
-  add_definitions("-g3 -ggdb3 -Wall")
+  add_definitions("-g3 -ggdb3 -Wall -Wextra")
 endif()
 
 if (SANITIZE)

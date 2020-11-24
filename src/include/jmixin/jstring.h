@@ -452,4 +452,22 @@ namespace jmixin {
       return result.substr(0, result.size() - aggregate.size());
     }
 
+  String latin1_to_utf8(const String &str)
+  {
+    String out;
+
+    for (String::const_iterator it = str.begin(); it != str.end(); ++it) {
+      std::uint8_t ch = *it;
+
+      if (ch < 0x80) {
+        out.push_back(ch);
+      } else {
+        out.push_back(0xc0 | ch >> 6);
+        out.push_back(0x80 | (ch & 0x3f));
+      }
+    }
+
+    return out;
+  }
+
 }

@@ -50,12 +50,12 @@ namespace jmixin {
           std::size_t i {0};
 
           std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
-              [&i, n](auto const &item) {
-              if ((i++ % n) == 0) {
-              return true;
-              }
+              [&i, n](auto const &) {
+                if ((i++ % n) == 0) {
+                  return true;
+                }
 
-              return false;
+                return false;
               });
 
           return Iterator<Container>(result);
@@ -81,7 +81,7 @@ namespace jmixin {
         Iterator<Container> combine(Container2 other, Predicate predicate)
         {
           if (std::size(*this) != std::size(other)) {
-              throw std::runtime_error("Both containers must have the same size");
+            throw std::runtime_error("Both containers must have the same size");
           }
 
           Container result;
@@ -90,7 +90,7 @@ namespace jmixin {
           auto it2 = std::begin(other);
 
           for (; it1!=std::end(*this); it1++, it2++) {
-              result.insert(std::end(result), predicate(*it1, *it2));
+            result.insert(std::end(result), predicate(*it1, *it2));
           }
 
           return result;
@@ -100,7 +100,7 @@ namespace jmixin {
         Iterator<std::vector<std::pair<typename Container::value_type, typename Container2::value_type>>> pairs(Container2 other)
         {
           if (std::size(*this) != std::size(other)) {
-              throw std::runtime_error("Both containers must have the same size");
+            throw std::runtime_error("Both containers must have the same size");
           }
 
           std::vector<std::pair<typename Container::value_type, typename Container2::value_type>> result;
@@ -214,10 +214,10 @@ namespace jmixin {
           std::size_t i {0};
 
           std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
-              [&i, n](auto const &item) {
-              if (++i > n) {
-                return true;
-              }
+              [&i, n](auto const &) {
+                if (++i > n) {
+                  return true;
+                }
 
                 return false;
               });
@@ -231,10 +231,10 @@ namespace jmixin {
           std::size_t i {0};
 
           std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
-              [&i, n](auto const &item) {
-              if (i++ < n) {
-                return true;
-              }
+              [&i, n](auto const &) {
+                if (i++ < n) {
+                  return true;
+                }
 
                 return false;
               });
