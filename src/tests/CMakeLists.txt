@@ -11,6 +11,7 @@ macro(module_test)
 
   target_link_libraries(${test_file} PUBLIC
     ${PROJECT_NAME}
+    pthread
   )
 
   if (SANITIZE)
@@ -129,5 +130,3 @@ module_test(jstring_left)
 module_test(jstring_right)
 module_test(jstring_center)
 module_test(jstring_join)
-
-module_test(megasena)
