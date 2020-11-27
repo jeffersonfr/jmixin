@@ -296,7 +296,7 @@ namespace jmixin {
         return value + *this;
       }
 
-      String repeat(std::size_t n)
+      String repeat(std::size_t n, const String &aggregator = {})
       {
         std::string result;
 
@@ -304,39 +304,23 @@ namespace jmixin {
 
         for (std::size_t i=0; i<n; i++) {
           result = result + *this;
+
+          if (i < n - 1) {
+            result = result + aggregator;
+          }
         }
 
         return String{result};
       }
 
-      String repeat_left(const String &value, std::size_t n)
+      String repeat_left(const String &value, std::size_t n, const String &aggregator = {})
       {
-        std::string result;
-
-        result.reserve(this->size() + value.size() + n);
-
-        for (std::size_t i=0; i<n; i++) {
-          result = result + value;
-        }
-
-        result = result + *this;
-
-        return String{result};
+        return String(value).repeat(n, aggregator) + aggregator + *this;
       }
 
-      String repeat_right(const String &value, std::size_t n)
+      String repeat_right(const String &value, std::size_t n, const String &aggregator = {})
       {
-        std::string result;
-
-        result.reserve(this->size() + value.size() + n);
-
-        result = *this;
-
-        for (std::size_t i=0; i<n; i++) {
-          result = result + value;
-        }
-
-        return String{result};
+        return *this + aggregator + String(value).repeat(n, aggregator);
       }
 
       String align(align align, std::size_t length, const char fill = ' ')

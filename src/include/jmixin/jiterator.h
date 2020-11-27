@@ -170,13 +170,23 @@ namespace jmixin {
           }
 
         template<typename Callback>
-          Iterator<Container> & for_each(Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
+          Iterator<Container> & for_each(Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr, std::size_t n = 0)
           {
             if (begin) {
               begin();
             }
 
-            std::for_each(std::begin(*this), std::end(*this), callback);
+            auto end_it = std::end(*this);
+
+            if (n > 0) {
+              if (n > this->size()) {
+                n = this->size();
+              }
+
+              end_it = std::begin(*this) + n;
+            }
+
+            std::for_each(std::begin(*this), end_it, callback);
 
             if (end) {
               end();
@@ -201,9 +211,25 @@ namespace jmixin {
             return Iterator<ResultContainer>(result);
           }
 
-        Iterator<Container> & fill(typename Container::value_type value)
+        template<typename Result = Container>
+          Iterator<Result> build(std::function<Result(Container &)> f)
+          {
+            return f(*this);
+          }
+
+        Iterator<Container> & fill(typename Container::value_type value, std::size_t n = 0)
         {
-            std::fill(std::begin(*this), std::end(*this), value);
+            auto end_it = std::end(*this);
+
+            if (n > 0) {
+              if (n > this->size()) {
+                n = this->size();
+              }
+
+              end_it = std::begin(*this) + n;
+            }
+
+            std::fill(std::begin(*this), end_it, value);
 
             return *this;
         }
@@ -258,12 +284,22 @@ namespace jmixin {
           return *this;
         }
 
-        Iterator<Container> & shuffle()
+        Iterator<Container> & shuffle(std::size_t n = 0)
         {
           std::random_device rd;
           std::mt19937 g(rd());
 
-          std::shuffle(std::begin(*this), std::end(*this), g);
+          auto end_it = std::end(*this);
+
+          if (n > 0) {
+            if (n > this->size()) {
+              n = this->size();
+            }
+
+            end_it = std::begin(*this) + n;
+          }
+
+          std::shuffle(std::begin(*this), end_it, g);
 
           return *this;
         }
@@ -426,17 +462,37 @@ namespace jmixin {
           }
 
         template<typename Compare = std::less<>>
-          Iterator<Container> & sort(Compare compare = Compare())
+          Iterator<Container> & sort(std::size_t n = 0, Compare compare = Compare())
           {
-            std::sort(std::begin(*this), std::end(*this), compare);
+            auto end_it = std::end(*this);
+
+            if (n > 0) {
+              if (n > this->size()) {
+                n = this->size();
+              }
+
+              end_it = std::begin(*this) + n;
+            }
+
+            std::sort(std::begin(*this), end_it, compare);
 
             return *this;
           }
 
-        Iterator<Container> & unique()
+        Iterator<Container> & unique(std::size_t n = 0)
         {
           if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
             throw std::runtime_error("Container must be sorted");
+          }
+
+          auto end_it = std::end(*this);
+
+          if (n > 0) {
+            if (n > this->size()) {
+              n = this->size();
+            }
+
+            end_it = std::begin(*this) + n;
           }
 
           this->erase(std::unique(std::begin(*this), std::end(*this)), std::end(*this));
