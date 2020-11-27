@@ -84,6 +84,7 @@ module_test(jiterator_breaks)
 module_test(jiterator_chop)
 module_test(jiterator_flatten)
 module_test(jiterator_generate)
+module_test(jiterator_partition)
 
 module_test(jstring_iterator)
 module_test(jstring_upper_case)

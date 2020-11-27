@@ -23,7 +23,7 @@ namespace jmixin {
         {
           Container result;
 
-          std::copy(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)));
+          std::copy(this->begin(), this->end(), std::inserter(result, std::end(result)));
 
           return Iterator<Container>(result);
         }
@@ -31,7 +31,7 @@ namespace jmixin {
         template<typename Predicate>
           std::size_t count(Predicate predicate)
           {
-            return std::count_if(std::begin(*this), std::end(*this), predicate);
+            return std::count_if(this->begin(), this->end(), predicate);
           }
 
         template<typename Predicate>
@@ -39,7 +39,7 @@ namespace jmixin {
           {
             Container result;
 
-            std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), predicate);
+            std::copy_if(this->begin(), this->end(), std::inserter(result, std::end(result)), predicate);
 
             return Iterator<Container>(result);
           }
@@ -49,7 +49,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
+          std::copy_if(this->begin(), this->end(), std::inserter(result, std::end(result)), 
               [&i, n](auto const &) {
                 if ((i++ % n) == 0) {
                   return true;
@@ -66,7 +66,7 @@ namespace jmixin {
         {
           Container result;
 
-          return std::accumulate(std::begin(*this), std::end(*this), initial);
+          return std::accumulate(this->begin(), this->end(), initial);
         }
 
         template<typename Initial>
@@ -74,7 +74,7 @@ namespace jmixin {
         {
           Container result;
 
-          return std::accumulate(std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
+          return std::accumulate(this->begin(), this->end(), initial, std::multiplies<typename Container::value_type>());
         }
 
         template<typename Container2, typename Predicate>
@@ -86,10 +86,10 @@ namespace jmixin {
 
           Container result;
 
-          auto it1 = std::begin(*this);
+          auto it1 = this->begin();
           auto it2 = std::begin(other);
 
-          for (; it1!=std::end(*this); it1++, it2++) {
+          for (; it1!=this->end(); it1++, it2++) {
             result.insert(std::end(result), predicate(*it1, *it2));
           }
 
@@ -105,10 +105,10 @@ namespace jmixin {
 
           std::vector<std::pair<typename Container::value_type, typename Container2::value_type>> result;
 
-          auto it1 = std::begin(*this);
+          auto it1 = this->begin();
           auto it2 = std::begin(other);
 
-          for (; it1!=std::end(*this); it1++, it2++) {
+          for (; it1!=this->end(); it1++, it2++) {
               result.insert(std::end(result), std::make_pair(*it1, *it2));
           }
 
@@ -118,7 +118,7 @@ namespace jmixin {
         template<typename Container2>
           bool eq(Container2 other)
           {
-            return std::equal(std::begin(*this), std::end(*this), std::begin(other));
+            return std::equal(this->begin(), this->end(), std::begin(other));
           }
 
         template<typename Container2>
@@ -130,7 +130,7 @@ namespace jmixin {
         template<typename Container2>
           bool lt(Container2 other)
           {
-            return lexicographical_compare(std::begin(*this), std::end(*this), std::begin(other), std::end(other));
+            return lexicographical_compare(this->begin(), this->end(), std::begin(other), std::end(other));
           }
 
         template<typename Container2>
@@ -170,23 +170,13 @@ namespace jmixin {
           }
 
         template<typename Callback>
-          Iterator<Container> & for_each(Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr, std::size_t n = 0)
+          Iterator<Container> & for_each(Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
           {
             if (begin) {
               begin();
             }
 
-            auto end_it = std::end(*this);
-
-            if (n > 0) {
-              if (n > this->size()) {
-                n = this->size();
-              }
-
-              end_it = std::begin(*this) + n;
-            }
-
-            std::for_each(std::begin(*this), end_it, callback);
+            std::for_each(this->begin(), this->end(), callback);
 
             if (end) {
               end();
@@ -195,10 +185,28 @@ namespace jmixin {
             return *this;
           }
 
+        /*
+        template<typename Callback, typename ExecutionPolicy>
+          Iterator<Container> & for_each(ExecutionPolicy &&policy, Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
+          {
+            if (begin) {
+              begin();
+            }
+
+            std::for_each(policy, this->begin(), this->end(), callback);
+
+            if (end) {
+              end();
+            }
+
+            return *this;
+          }
+          */
+
         template<typename Predicate, typename Initial>
           std::optional<Initial> zip(Predicate predicate, Initial value)
           {
-            return std::accumulate(std::begin(*this), std::end(*this), value, predicate);
+            return std::accumulate(this->begin(), this->end(), value, predicate);
           }
 
         template<typename ResultContainer = Container, typename Predicate>
@@ -206,7 +214,7 @@ namespace jmixin {
           {
             ResultContainer result;
 
-            std::transform(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), predicate);
+            std::transform(this->begin(), this->end(), std::inserter(result, std::end(result)), predicate);
 
             return Iterator<ResultContainer>(result);
           }
@@ -217,19 +225,9 @@ namespace jmixin {
             return f(*this);
           }
 
-        Iterator<Container> & fill(typename Container::value_type value, std::size_t n = 0)
+        Iterator<Container> & fill(typename Container::value_type value)
         {
-            auto end_it = std::end(*this);
-
-            if (n > 0) {
-              if (n > this->size()) {
-                n = this->size();
-              }
-
-              end_it = std::begin(*this) + n;
-            }
-
-            std::fill(std::begin(*this), end_it, value);
+            std::fill(this->begin(), this->end(), value);
 
             return *this;
         }
@@ -239,7 +237,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
+          std::copy_if(this->begin(), this->end(), std::inserter(result, std::end(result)), 
               [&i, n](auto const &) {
                 if (++i > n) {
                   return true;
@@ -256,7 +254,7 @@ namespace jmixin {
           Container result;
           std::size_t i {0};
 
-          std::copy_if(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), 
+          std::copy_if(this->begin(), this->end(), std::inserter(result, std::end(result)), 
               [&i, n](auto const &) {
                 if (i++ < n) {
                   return true;
@@ -272,34 +270,24 @@ namespace jmixin {
         {
           Container result;
 
-          std::copy(std::begin(*this), std::end(*this) - n, std::inserter(result, std::end(result)));
+          std::copy(this->begin(), this->end() - n, std::inserter(result, std::end(result)));
 
           return Iterator<Container>(result);
         }
 
         Iterator<Container> & reverse()
         {
-          std::reverse(std::begin(*this), std::end(*this));
+          std::reverse(this->begin(), this->end());
 
           return *this;
         }
 
-        Iterator<Container> & shuffle(std::size_t n = 0)
+        Iterator<Container> & shuffle()
         {
           std::random_device rd;
           std::mt19937 g(rd());
 
-          auto end_it = std::end(*this);
-
-          if (n > 0) {
-            if (n > this->size()) {
-              n = this->size();
-            }
-
-            end_it = std::begin(*this) + n;
-          }
-
-          std::shuffle(std::begin(*this), end_it, g);
+          std::shuffle(this->begin(), this->end(), g);
 
           return *this;
         }
@@ -315,14 +303,14 @@ namespace jmixin {
           std::random_device rd;
           std::mt19937 g(rd());
 
-          std::sample(std::begin(*this), std::end(*this), std::inserter(result, std::end(result)), n, g);
+          std::sample(this->begin(), this->end(), std::inserter(result, std::end(result)), n, g);
 
           return Iterator<Container>(result);
         }
 
         Iterator<Container> & lrotate(std::size_t n)
         {
-          std::rotate(std::begin(*this), std::begin(*this) + n, std::end(*this));
+          std::rotate(this->begin(), this->begin() + n, this->end());
 
           return *this;
         }
@@ -360,7 +348,7 @@ namespace jmixin {
             return {};
           }
 
-          return {*std::begin(*this)};
+          return {*this->begin()};
         }
 
         std::optional<typename Container::value_type> last()
@@ -369,20 +357,20 @@ namespace jmixin {
             return {};
           }
 
-          return {*std::next(std::begin(*this), std::size(*this) - 1)};
+          return {*std::next(this->begin(), std::size(*this) - 1)};
         }
 
         std::optional<typename Container::value_type> nth(std::size_t n)
         {
-          return {*std::next(std::begin(*this), n)};
+          return {*std::next(this->begin(), n)};
         }
 
         template<typename Predicate>
           std::optional<typename Container::value_type> find_first(Predicate predicate)
           {
-            auto i = std::find_if(std::begin(*this), std::end(*this), predicate);
+            auto i = std::find_if(this->begin(), this->end(), predicate);
 
-            if (i != std::end(*this)) {
+            if (i != this->end()) {
               return {*i};
             }
 
@@ -392,15 +380,15 @@ namespace jmixin {
         template<typename Predicate>
           std::optional<typename Container::value_type> find_last(Predicate predicate)
           {
-            auto last = std::end(*this);
+            auto last = this->end();
 
-            for (auto i=std::begin(*this); i!=std::end(*this); i++) {
+            for (auto i=this->begin(); i!=this->end(); i++) {
               if (predicate(*i) == true) {
                 last = i;
               }
             }
 
-            if (last == std::end(*this)) {
+            if (last == this->end()) {
               return {};
             }
 
@@ -410,9 +398,9 @@ namespace jmixin {
         template<typename Compare = std::less<>>
           std::optional<typename Container::value_type> min(Compare compare = Compare())
           {
-            auto i = std::min_element(std::begin(*this), std::end(*this), compare);
+            auto i = std::min_element(this->begin(), this->end(), compare);
 
-            if (i == std::end(*this)) {
+            if (i == this->end()) {
               return {};
             }
 
@@ -422,9 +410,9 @@ namespace jmixin {
         template<typename Compare = std::less<>>
           std::optional<typename Container::value_type> max(Compare compare = Compare())
           {
-            auto i = std::max_element(std::begin(*this), std::end(*this), compare);
+            auto i = std::max_element(this->begin(), this->end(), compare);
 
-            if (i == std::end(*this)) {
+            if (i == this->end()) {
               return {};
             }
 
@@ -434,10 +422,10 @@ namespace jmixin {
         template<typename Predicate>
           std::optional<std::size_t> position(Predicate predicate)
           {
-            auto i = std::find_if(std::begin(*this), std::end(*this), predicate);
+            auto i = std::find_if(this->begin(), this->end(), predicate);
 
-            if (i != std::end(*this)) {
-              return {std::distance(std::begin(*this), i)};
+            if (i != this->end()) {
+              return {std::distance(this->begin(), i)};
             }
 
             return {};
@@ -446,56 +434,36 @@ namespace jmixin {
         template<typename Predicate>
           bool all(Predicate predicate)
           {
-            return std::all_of(std::begin(*this), std::end(*this), predicate);
+            return std::all_of(this->begin(), this->end(), predicate);
           }
 
         template<typename Predicate>
           bool any(Predicate predicate)
           {
-            return std::any_of(std::begin(*this), std::end(*this), predicate);
+            return std::any_of(this->begin(), this->end(), predicate);
           }
 
         template<typename Predicate>
           bool none(Predicate predicate)
           {
-            return std::none_of(std::begin(*this), std::end(*this), predicate);
+            return std::none_of(this->begin(), this->end(), predicate);
           }
 
         template<typename Compare = std::less<>>
-          Iterator<Container> & sort(std::size_t n = 0, Compare compare = Compare())
+          Iterator<Container> & sort(Compare compare = Compare())
           {
-            auto end_it = std::end(*this);
-
-            if (n > 0) {
-              if (n > this->size()) {
-                n = this->size();
-              }
-
-              end_it = std::begin(*this) + n;
-            }
-
-            std::sort(std::begin(*this), end_it, compare);
+            std::sort(this->begin(), this->end(), compare);
 
             return *this;
           }
 
-        Iterator<Container> & unique(std::size_t n = 0)
+        Iterator<Container> & unique()
         {
-          if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+          if (std::is_sorted(this->begin(), this->end()) == false) {
             throw std::runtime_error("Container must be sorted");
           }
 
-          auto end_it = std::end(*this);
-
-          if (n > 0) {
-            if (n > this->size()) {
-              n = this->size();
-            }
-
-            end_it = std::begin(*this) + n;
-          }
-
-          this->erase(std::unique(std::begin(*this), std::end(*this)), std::end(*this));
+          this->erase(std::unique(this->begin(), this->end()), this->end());
 
           return *this;
         }
@@ -503,23 +471,23 @@ namespace jmixin {
         template<typename Container2>
           bool includes(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
-            return std::includes(std::begin(*this), std::end(*this), std::begin(other), std::end(other));
+            return std::includes(this->begin(), this->end(), std::begin(other), std::end(other));
           }
 
         template<typename Container2>
           Iterator<Container> difference(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
             Container result;
 
-            std::set_difference(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
+            std::set_difference(this->begin(), this->end(), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -528,7 +496,7 @@ namespace jmixin {
         Iterator<Container> & generate(Predicate predicate, std::size_t n)
         {
           for (std::size_t i=0; i<n; i++) {
-            this->insert(std::end(*this), predicate());
+            this->insert(this->end(), predicate());
           }
 
           return *this;
@@ -537,13 +505,13 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> complement(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
             Container result;
 
-            std::set_difference(std::begin(other), std::end(other), std::begin(*this), std::end(*this), std::inserter(result, std::end(result)));
+            std::set_difference(std::begin(other), std::end(other), this->begin(), this->end(), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -551,13 +519,13 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> intersection(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
             Container result;
 
-            std::set_intersection(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
+            std::set_intersection(this->begin(), this->end(), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -565,13 +533,13 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> union_set(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
             Container result;
 
-            std::set_union(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
+            std::set_union(this->begin(), this->end(), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -579,13 +547,13 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> merge(Container2 other)
           {
-            if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
+            if (std::is_sorted(this->begin(), this->end()) == false) {
               throw std::runtime_error("Container must be sorted");
             }
 
             Container result;
 
-            std::merge(std::begin(*this), std::end(*this), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
+            std::merge(this->begin(), this->end(), std::begin(other), std::end(other), std::inserter(result, std::end(result)));
 
             return result;
           }
@@ -593,7 +561,7 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> & append(Container2 other)
           {
-            std::copy(std::begin(other), std::end(other), std::inserter(*this, std::end(*this)));
+            std::copy(std::begin(other), std::end(other), std::inserter(*this, this->end()));
 
             return *this;
           }
@@ -601,7 +569,7 @@ namespace jmixin {
         template<typename Container2>
           Iterator<Container> & prepend(Container2 other)
           {
-            std::copy(std::begin(other), std::end(other), std::inserter(*this, std::begin(*this)));
+            std::copy(std::begin(other), std::end(other), std::inserter(*this, this->begin()));
 
             return *this;
           }
@@ -625,6 +593,22 @@ namespace jmixin {
 
             container->insert(std::begin(*container), item);
           }
+
+          return Iterator<std::vector<Container>>{result};
+        }
+        
+        template<typename Predicate>
+        Iterator<std::vector<Container>> partition(Predicate predicate)
+        {
+          std::vector<Container> result;
+
+          result.push_back({});
+          result.push_back({});
+
+          auto it = std::partition(this->begin(), this->end(), predicate);
+
+          std::copy(this->begin(), it, std::inserter(result[0], std::end(result[0])));
+          std::copy(it, this->end(), std::inserter(result[1], std::end(result[1])));
 
           return Iterator<std::vector<Container>>{result};
         }
