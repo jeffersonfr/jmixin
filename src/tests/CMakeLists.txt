@@ -12,6 +12,7 @@ macro(module_test)
   target_link_libraries(${test_file} PUBLIC
     ${PROJECT_NAME}
     pthread
+    tbb
   )
 
   if (SANITIZE)
@@ -28,6 +29,12 @@ macro(module_test)
     target_link_libraries(${test_file} PUBLIC
       --coverage 
       -lgcov
+    )
+  endif()
+
+  if (PROFILE)
+    target_link_libraries(${test_file} PUBLIC
+      -pg
     )
   endif()
 endmacro()
