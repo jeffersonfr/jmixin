@@ -125,14 +125,14 @@ namespace jmixin {
         return std::regex_replace(*this, r, format, flags);
       }
 
-      bool match(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool match(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         const std::regex r{pattern, flags};
 
         return std::regex_match(*this, r);
       }
 
-      bool match_any(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool match_any(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         for (auto &pattern : patterns) {
           if (match(pattern, flags) == true) {
@@ -143,7 +143,7 @@ namespace jmixin {
         return false;
       }
 
-      bool match_none(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool match_none(std::initializer_list<String> patterns, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         for (auto &pattern : patterns) {
           if (match(pattern, flags) == true) {
@@ -154,7 +154,7 @@ namespace jmixin {
         return true;
       }
 
-      Iterator<std::vector<String>> search(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      Iterator<std::vector<String>> search(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         const std::regex r(pattern, flags);
         
@@ -171,7 +171,7 @@ namespace jmixin {
         return Iterator{result};
       }
 
-      bool contains(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool contains(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         if (search(pattern, flags).size() > 0) {
           return true;
@@ -180,7 +180,7 @@ namespace jmixin {
         return false;
       }
 
-      bool contains_any(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool contains_any(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         for (auto &value : values) {
           if (contains(value, flags) == true) {
@@ -191,7 +191,7 @@ namespace jmixin {
         return false;
       }
 
-      bool contains_none(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
+      bool contains_none(std::initializer_list<String> values, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         for (auto &value : values) {
           if (contains(value, flags) == true) {
@@ -202,13 +202,13 @@ namespace jmixin {
         return true;
       }
 
-      bool starts_with(const String &value)
+      bool starts_with(const String &value) const
       {
         if (value.size() > this->size()) {
           return false;
         }
 
-        std::string::iterator i = std::begin(*this);
+        std::string::const_iterator i = std::begin(*this);
         std::string::const_iterator j = std::cbegin(value);
 
         for (; i!=std::end(*this) and j!=std::cend(value);) {
@@ -220,7 +220,7 @@ namespace jmixin {
         return true;
       }
 
-      bool starts_with_any(std::initializer_list<String> values) {
+      bool starts_with_any(std::initializer_list<String> values) const {
         for (auto &value : values) {
           if (starts_with(value) == true) {
             return true;
@@ -230,7 +230,7 @@ namespace jmixin {
         return false;
       }
 
-      bool starts_with_none(std::initializer_list<String> values) {
+      bool starts_with_none(std::initializer_list<String> values) const {
         for (auto &value : values) {
           if (starts_with(value) == true) {
             return false;
@@ -240,13 +240,13 @@ namespace jmixin {
         return true;
       }
 
-      bool ends_with(const String &value)
+      bool ends_with(const String &value) const
       {
         if (value.size() > this->size()) {
           return false;
         }
 
-        std::string::iterator i = std::begin(*this) + std::size(*this) - std::size(value);
+        std::string::const_iterator i = std::begin(*this) + std::size(*this) - std::size(value);
         std::string::const_iterator j = std::cbegin(value);
 
         for (; i!=std::end(*this) and j!=std::end(value);) {
@@ -258,7 +258,7 @@ namespace jmixin {
         return true;
       }
 
-      bool ends_with_any(std::initializer_list<String> values) {
+      bool ends_with_any(std::initializer_list<String> values) const {
         for (auto &value : values) {
           if (ends_with(value) == true) {
             return true;
@@ -268,7 +268,7 @@ namespace jmixin {
         return false;
       }
 
-      bool ends_with_none(std::initializer_list<String> values) {
+      bool ends_with_none(std::initializer_list<String> values) const {
         for (auto &value : values) {
           if (ends_with(value) == true) {
             return false;
@@ -278,22 +278,22 @@ namespace jmixin {
         return true;
       }
 
-      String append_if_missing(const String &value)
+      String & append_if_missing(const String &value)
       {
-        if (contains(value + "$") == true) {
-          return *this;
+        if (contains(value + "$") == false) {
+          *this = *this + value;
         }
 
-        return *this + value;
+        return *this;
       }
 
-      String prepend_if_missing(const String &value)
+      String & prepend_if_missing(const String &value)
       {
-        if (contains("^" + value) == true) {
-          return *this;
+        if (contains("^" + value) == false) {
+          *this = value + *this;
         }
 
-        return value + *this;
+        return *this;
       }
 
       String repeat(std::size_t n, const String &aggregator = {})
@@ -323,7 +323,7 @@ namespace jmixin {
         return *this + aggregator + String(value).repeat(n, aggregator);
       }
 
-      String align(align align, std::size_t length, const char fill = ' ')
+      String align(align align, std::size_t length, const char fill = ' ') const
       {
         if (this->size() >= length) {
           return *this;
@@ -340,22 +340,22 @@ namespace jmixin {
         return std::string(padding/2, fill) + *this + std::string(padding/2 + padding%2, fill);
       }
 
-      String left(std::size_t length, const char fill = ' ')
+      String left(std::size_t length, const char fill = ' ') const
       {
         return align(align::left, length, fill);
       }
 
-      String right(std::size_t length, const char fill = ' ')
+      String right(std::size_t length, const char fill = ' ') const
       {
         return align(align::right, length, fill);
       }
 
-      String center(std::size_t length, const char fill = ' ')
+      String center(std::size_t length, const char fill = ' ') const
       {
         return align(align::center, length, fill);
       }
 
-      String ellipses(std::size_t length, const String &value = String("..."))
+      String ellipses(std::size_t length, const String &value = String("...")) const
       {
         if (this->size() < length) {
           return *this;
@@ -364,7 +364,7 @@ namespace jmixin {
         return this->substr(0, length - value.size()) + value;
       }
 
-      Iterator<std::vector<String>> split(const String &pattern = String("\\s+"))
+      Iterator<std::vector<String>> split(const String &pattern = String("\\s+")) const
       {
           std::vector<String> result;
 
@@ -384,34 +384,47 @@ namespace jmixin {
         return this->replace(value, "");
       }
 
-      bool is_blank()
+      bool is_blank() const
       {
         return match("[[:blank:]]*") or match("[[:space:]]*");
       }
 
-      bool is_lower_case()
+      bool is_lower_case() const
       {
         return match("[[:lower:][:digit:][:graph:][:punct:][:space:]]*");
       }
 
-      bool is_upper_case()
+      bool is_upper_case() const
       {
         return match("[[:upper:][:digit:][:graph:][:punct:][:space:]]*");
       }
 
-      bool is_alpha()
+      bool is_alpha() const
       {
         return match("[[:alpha:]]*");
       }
 
-      bool is_number()
+      bool is_number() const
       {
         return match("[[:digit:]]*.?[[:digit:]]*");
       }
 
-      bool is_alpha_numeric()
+      bool is_alpha_numeric() const
       {
         return match("[[:alnum:]]*");
+      }
+
+      String normalize()
+      {
+        auto values = this->search("(\\w+)");
+
+        std::string result;
+
+        for (const auto &value : values) {
+          result = result + value + " ";
+        }
+
+        return result.substr(0, result.size() - 1);
       }
 
       /* -std=c++20 still not working
