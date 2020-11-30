@@ -445,26 +445,26 @@ namespace jmixin {
           return Iterator<Container>(result);
         }
 
-        Iterator<Container> & lrotate(std::size_t n)
+        Iterator<Container> & left_rotate(std::size_t n)
         {
-          return this->lrotate(std::execution::seq, n);
+          return this->left_rotate(std::execution::seq, n);
         }
 
         template<typename ExecutionPolicy>
-          Iterator<Container> & lrotate(ExecutionPolicy &&policy, std::size_t n)
+          Iterator<Container> & left_rotate(ExecutionPolicy &&policy, std::size_t n)
           {
             std::rotate(policy, std::begin(*this), std::next(std::begin(*this), n), std::end(*this));
 
             return *this;
           }
 
-        Iterator<Container> & rrotate(std::size_t n)
+        Iterator<Container> & right_rotate(std::size_t n)
         {
-          return this->rrotate(std::execution::seq, n);
+          return this->right_rotate(std::execution::seq, n);
         }
 
         template<typename ExecutionPolicy>
-          Iterator<Container> & rrotate(ExecutionPolicy &&policy, std::size_t n)
+          Iterator<Container> & right_rotate(ExecutionPolicy &&policy, std::size_t n)
           {
             std::rotate(policy, this->rbegin(), std::next(this->rbegin(), n), this->rend());
 

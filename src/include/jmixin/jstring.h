@@ -6,6 +6,7 @@
 #include <optional>
 #include <regex>
 #include <initializer_list>
+#include <set>
 
 namespace jmixin {
 
@@ -313,12 +314,12 @@ namespace jmixin {
         return String{result};
       }
 
-      String repeat_left(const String &value, std::size_t n, const String &aggregator = {}) const
+      String left_repeat(const String &value, std::size_t n, const String &aggregator = {}) const
       {
         return String(value).repeat(n, aggregator) + aggregator + *this;
       }
 
-      String repeat_right(const String &value, std::size_t n, const String &aggregator = {}) const
+      String right_repeat(const String &value, std::size_t n, const String &aggregator = {}) const
       {
         return *this + aggregator + String(value).repeat(n, aggregator);
       }
@@ -425,6 +426,135 @@ namespace jmixin {
         }
 
         return result.substr(0, result.size() - 1);
+      }
+
+      String encode_base64(const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const
+      {
+        std::string out;
+        int val = 0;
+        int valb = -6;
+
+        for (uint8_t c : *this) {
+          val = (val << 8) + c;
+          valb = valb + 8;
+
+          while (valb >= 0) {
+            out.push_back(dictionary[(val >> valb) & 0x3F]);
+
+            valb = valb - 6;
+          }
+        }
+
+        if (valb > -6) {
+          out.push_back(dictionary[((val << 8) >> (valb + 8)) & 0x3F]);
+        }
+
+        while (out.size()%4) {
+          out.push_back('=');
+        }
+
+        return out;
+      }
+
+      String decode_base64(const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const
+      {
+        std::vector<int> T(256, -1);
+        std::string out;
+
+        for (int i=0; i<64; i++) {
+          T[dictionary[i]] = i;
+        }
+
+        int val = 0;
+        int valb = -8;
+
+        for (uint8_t c : *this) {
+          if (T[c] == -1) {
+            break;
+          }
+
+          val = (val << 6) + T[c];
+          valb = valb + 6;
+
+          if (valb >= 0) {
+            out.push_back(char((val >> valb) & 0xFF));
+
+            valb = valb - 8;
+          }
+        }
+
+        return out;
+      }
+
+
+      std::size_t levenshtein(const String &target, std::size_t insert_cost = 1, std::size_t delete_cost = 1, std::size_t replace_cost = 1) const
+      {
+        const String &source = *this;
+
+        if (source.size() > target.size()) {
+          return target.levenshtein(source, delete_cost, insert_cost, replace_cost);
+        }
+
+        const std::size_t min_size = source.size(), max_size = target.size();
+
+        std::vector<std::size_t> lev_dist(min_size + 1);
+
+        lev_dist[0] = 0;
+
+        for (std::size_t i = 1; i <= min_size; i++) {
+          lev_dist[i] = lev_dist[i - 1] + delete_cost;
+        }
+
+        for (std::size_t j = 1; j <= max_size; j++) {
+          std::size_t previous_diagonal = lev_dist[0], previous_diagonal_save;
+
+          lev_dist[0] += insert_cost;
+
+          for (std::size_t i = 1; i <= min_size; i++) {
+            previous_diagonal_save = lev_dist[i];
+
+            if (source[i - 1] == target[j - 1]) {
+              lev_dist[i] = previous_diagonal;
+            } else {
+              lev_dist[i] = std::min(std::min(lev_dist[i - 1] + delete_cost, lev_dist[i] + insert_cost), previous_diagonal + replace_cost);
+            }
+
+            previous_diagonal = previous_diagonal_save;
+          }
+        }
+
+        return lev_dist[min_size];
+      }
+
+      double dice_coefficient(const String &target) const
+      {
+        std::set<String> string1_bigrams;
+        std::set<String> string2_bigrams;
+
+        // base case
+        if (this->length() == 0 || target.length() == 0) {
+          return 0.0;
+        }
+
+        for (std::size_t i=0; i<(this->length()-1); i++) {      // extract character bigrams from source
+          string1_bigrams.insert(this->substr(i, 2));
+        }
+
+        for (std::size_t i=0; i<(target.length()-1); i++) {      // extract character bigrams from target
+          string2_bigrams.insert(target.substr(i, 2));
+        }
+
+        std::size_t intersection = 0;
+
+        // find the intersection between the two sets
+        for (std::set<String>::iterator i=string2_bigrams.begin(); i!=string2_bigrams.end(); i++) {
+          intersection += string1_bigrams.count((*i));
+        }
+
+        // calculate dice coefficient
+        std::size_t total = string1_bigrams.size() + string2_bigrams.size();
+        
+        return (double)(intersection * 2)/(double)total;
       }
 
       /* -std=c++20 still not working

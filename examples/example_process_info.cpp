@@ -122,11 +122,7 @@ int main(int argc, char **argv)
 
       return process;
     }).filter([userid](const auto &process) {
-      if (userid == process.uid) {
-        return true;
-      }
-
-      return false;
+      return userid == process.uid;
     }).for_each([](const auto &process) {
       std::cout << jmixin::String(std::to_string(process.pid)).right(8) << ": " << process.name << " " << process.args << std::endl;
     });
