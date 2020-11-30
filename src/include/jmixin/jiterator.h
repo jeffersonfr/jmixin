@@ -22,13 +22,13 @@ namespace jmixin {
         {
         }
 
-        Iterator<Container> copy()
+        Iterator<Container> copy() const
         {
           return this->copy(std::execution::seq);
         }
 
         template<typename ExecutionPolicy>
-          Iterator<Container> copy(ExecutionPolicy &&policy)
+          Iterator<Container> copy(ExecutionPolicy &&policy) const
           {
             Container result;
 
@@ -37,13 +37,13 @@ namespace jmixin {
             return Iterator<Container>(result);
           }
 
-        Iterator<Container> copy_n(std::size_t n)
+        Iterator<Container> copy_n(std::size_t n) const
         {
           return this->copy_n(std::execution::seq, n);
         }
 
         template<typename ExecutionPolicy>
-          Iterator<Container> copy_n(ExecutionPolicy &&policy, std::size_t n)
+          Iterator<Container> copy_n(ExecutionPolicy &&policy, std::size_t n) const
           {
             Container result;
 
@@ -53,13 +53,13 @@ namespace jmixin {
           }
 
         template<typename Predicate>
-          std::size_t count(Predicate predicate)
+          std::size_t count(Predicate predicate) const
           {
             return this->count(std::execution::seq, predicate);
           }
 
         template<typename Predicate, typename ExecutionPolicy>
-          std::size_t count(ExecutionPolicy &&policy, Predicate predicate)
+          std::size_t count(ExecutionPolicy &&policy, Predicate predicate) const
           {
             return std::count_if(policy, std::begin(*this), std::end(*this), predicate);
           }
@@ -90,30 +90,26 @@ namespace jmixin {
         }
 
         template<typename Initial>
-          typename Container::value_type sum(Initial initial = Initial())
+          typename Container::value_type sum(Initial initial = Initial()) const
           {
             return this->sum(std::execution::seq, initial);
           }
 
         template<typename Initial, typename ExecutionPolicy>
-          typename Container::value_type sum(ExecutionPolicy &&policy, Initial initial)
+          typename Container::value_type sum(ExecutionPolicy &&policy, Initial initial) const
           {
-            Container result;
-
             return std::reduce(policy, std::begin(*this), std::end(*this), initial);
           }
 
         template<typename Initial>
-          typename Container::value_type product(Initial initial = Initial())
+          typename Container::value_type product(Initial initial = Initial()) const
           {
             return this->product(std::execution::seq, initial);
           }
 
         template<typename Initial, typename ExecutionPolicy>
-          typename Container::value_type product(ExecutionPolicy &&policy, Initial initial)
+          typename Container::value_type product(ExecutionPolicy &&policy, Initial initial) const
           {
-            Container result;
-
             return std::reduce(policy, std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
           }
 
@@ -139,7 +135,7 @@ namespace jmixin {
           }
 
         template<typename Container2>
-          Iterator<std::vector<std::pair<typename Container::value_type, typename Container2::value_type>>> pairs(Container2 other)
+          Iterator<std::vector<std::pair<typename Container::value_type, typename Container2::value_type>>> pairs(Container2 other) const
           {
             if (std::size(*this) != std::size(other)) {
               throw std::runtime_error("Both containers must have the same size");
@@ -158,49 +154,49 @@ namespace jmixin {
           }
 
         template<typename Container2>
-          bool eq(Container2 other)
+          bool eq(Container2 other) const
           {
             return this->eq(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool eq(ExecutionPolicy &&policy, Container2 other)
+          bool eq(ExecutionPolicy &&policy, Container2 other) const
           {
             return std::equal(policy, std::begin(*this), std::end(*this), std::begin(other));
           }
 
         template<typename Container2>
-          bool ne(Container2 other)
+          bool ne(Container2 other) const
           {
             return this->ne(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool ne(ExecutionPolicy &&policy, Container2 other)
+          bool ne(ExecutionPolicy &&policy, Container2 other) const
           {
             return !eq(policy, other);
           }
 
         template<typename Container2>
-          bool lt(Container2 other)
+          bool lt(Container2 other) const
           {
             return this->lt(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool lt(ExecutionPolicy &&policy, Container2 other)
+          bool lt(ExecutionPolicy &&policy, Container2 other) const
           {
             return lexicographical_compare(policy, std::begin(*this), std::end(*this), std::begin(other), std::end(other));
           }
 
         template<typename Container2>
-          bool le(Container2 other)
+          bool le(Container2 other) const
           {
             return this->le(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool le(ExecutionPolicy &&policy, Container2 other)
+          bool le(ExecutionPolicy &&policy, Container2 other) const
           {
             if (eq(policy, other) == true or lt(policy, other) == true) {
               return true;
@@ -210,37 +206,37 @@ namespace jmixin {
           }
 
         template<typename Container2>
-          bool gt(Container2 other)
+          bool gt(Container2 other) const
           {
             return this->gt(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool gt(ExecutionPolicy &&policy, Container2 other)
+          bool gt(ExecutionPolicy &&policy, Container2 other) const
           {
             return !le(policy, other);
           }
 
         template<typename Container2>
-          bool ge(Container2 other)
+          bool ge(Container2 other) const
           {
             return this->ge(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool ge(ExecutionPolicy &&policy, Container2 other)
+          bool ge(ExecutionPolicy &&policy, Container2 other) const
           {
             return !lt(policy, other);
           }
 
         template<typename Container2>
-          bool cmp(Container2 other)
+          bool cmp(Container2 other) const
           {
             return this->cmp(std::execution::seq, other);
           }
 
         template<typename Container2, typename ExecutionPolicy>
-          bool cmp(ExecutionPolicy &&policy, Container2 other)
+          bool cmp(ExecutionPolicy &&policy, Container2 other) const
           {
             if (equal(policy, other) == true) {
               return 0;
@@ -298,19 +294,19 @@ namespace jmixin {
           }
 
         template<typename Predicate, typename Initial>
-          std::optional<Initial> zip(Predicate predicate, Initial value = Initial())
+          std::optional<Initial> zip(Predicate predicate, Initial value = Initial()) const
           {
             return this->zip(std::execution::seq, predicate, value);
           }
 
         template<typename Predicate, typename Initial, typename ExecutionPolicy>
-          std::optional<Initial> zip(ExecutionPolicy &&policy, Predicate predicate, Initial value)
+          std::optional<Initial> zip(ExecutionPolicy &&policy, Predicate predicate, Initial value) const
           {
             return std::reduce(policy, std::begin(*this), std::end(*this), value, predicate);
           }
 
         template<typename ResultContainer = Container, typename Predicate>
-          Iterator<ResultContainer> map(Predicate predicate)
+          Iterator<ResultContainer> map(Predicate predicate) const
           {
             ResultContainer result;
 
@@ -320,7 +316,7 @@ namespace jmixin {
           }
 
         template<typename ResultContainer = Container, typename Predicate, typename ExecutionPolicy>
-          Iterator<ResultContainer> map(ExecutionPolicy &&policy, Predicate predicate)
+          Iterator<ResultContainer> map(ExecutionPolicy &&policy, Predicate predicate) const
           {
             ResultContainer result;
 
@@ -433,7 +429,7 @@ namespace jmixin {
           return *this;
         }
 
-        Iterator<Container> sample(std::size_t n)
+        Iterator<Container> sample(std::size_t n) const
         {
           Container result;
 
@@ -475,7 +471,7 @@ namespace jmixin {
             return *this;
           }
 
-        std::vector<std::pair<std::size_t, typename Container::value_type>> enumerate()
+        std::vector<std::pair<std::size_t, typename Container::value_type>> enumerate() const
         {
           std::vector<std::pair<std::size_t, typename Container::value_type>> result;
           std::size_t i {0};
@@ -495,7 +491,7 @@ namespace jmixin {
             return *this;
           }
 
-        std::optional<typename Container::value_type> first()
+        std::optional<typename Container::value_type> first() const
         {
           if (std::size(*this) == 0) {
             return {};
@@ -504,7 +500,7 @@ namespace jmixin {
           return {*std::begin(*this)};
         }
 
-        std::optional<typename Container::value_type> last()
+        std::optional<typename Container::value_type> last() const
         {
           if (std::size(*this) == 0) {
             return {};
@@ -513,13 +509,13 @@ namespace jmixin {
           return {*std::next(std::begin(*this), std::size(*this) - 1)};
         }
 
-        std::optional<typename Container::value_type> nth(std::size_t n)
+        std::optional<typename Container::value_type> nth(std::size_t n) const
         {
           return {*std::next(std::begin(*this), n)};
         }
 
         template<typename Predicate>
-          std::optional<typename Container::value_type> find_first(Predicate predicate)
+          std::optional<typename Container::value_type> find_first(Predicate predicate) const
           {
             auto i = std::find_if(std::begin(*this), std::end(*this), predicate);
 
@@ -531,7 +527,7 @@ namespace jmixin {
           }
 
         template<typename Predicate>
-          std::optional<typename Container::value_type> find_last(Predicate predicate)
+          std::optional<typename Container::value_type> find_last(Predicate predicate) const
           {
             auto last = std::end(*this);
 
@@ -549,7 +545,7 @@ namespace jmixin {
           }
 
         template<typename Compare = std::less<>>
-          std::optional<typename Container::value_type> min(Compare compare = Compare())
+          std::optional<typename Container::value_type> min(Compare compare = Compare()) const
           {
             auto i = std::min_element(std::begin(*this), std::end(*this), compare);
 
@@ -561,7 +557,7 @@ namespace jmixin {
           }
 
         template<typename Compare = std::less<>>
-          std::optional<typename Container::value_type> max(Compare compare = Compare())
+          std::optional<typename Container::value_type> max(Compare compare = Compare()) const
           {
             auto i = std::max_element(std::begin(*this), std::end(*this), compare);
 
@@ -573,13 +569,13 @@ namespace jmixin {
           }
 
         template<typename Predicate>
-          std::optional<std::size_t> position(Predicate predicate)
+          std::optional<std::size_t> position(Predicate predicate) const
           {
             return this->position(std::execution::seq, predicate);
           }
 
         template<typename Predicate, typename ExecutionPolicy>
-          std::optional<std::size_t> position(ExecutionPolicy &&policy, Predicate predicate)
+          std::optional<std::size_t> position(ExecutionPolicy &&policy, Predicate predicate) const
           {
             auto i = std::find_if(policy, std::begin(*this), std::end(*this), predicate);
 
@@ -591,37 +587,37 @@ namespace jmixin {
           }
 
         template<typename Predicate>
-          bool all(Predicate predicate)
+          bool all(Predicate predicate) const
           {
             return this->all(std::execution::seq, predicate);
           }
 
         template<typename Predicate, typename ExecutionPolicy>
-          bool all(ExecutionPolicy &&policy, Predicate predicate)
+          bool all(ExecutionPolicy &&policy, Predicate predicate) const
           {
             return std::all_of(policy, std::begin(*this), std::end(*this), predicate);
           }
 
         template<typename Predicate>
-          bool any(Predicate predicate)
+          bool any(Predicate predicate) const
           {
             return this->any(std::execution::seq, predicate);
           }
 
         template<typename Predicate, typename ExecutionPolicy>
-          bool any(ExecutionPolicy &&policy, Predicate predicate)
+          bool any(ExecutionPolicy &&policy, Predicate predicate) const
           {
             return std::any_of(policy, std::begin(*this), std::end(*this), predicate);
           }
 
         template<typename Predicate>
-          bool none(Predicate predicate)
+          bool none(Predicate predicate) const
           {
             return this->none(std::execution::seq, predicate);
           }
 
         template<typename Predicate, typename ExecutionPolicy>
-          bool none(ExecutionPolicy &&policy, Predicate predicate)
+          bool none(ExecutionPolicy &&policy, Predicate predicate) const
           {
             return std::none_of(policy, std::begin(*this), std::end(*this), predicate);
           }
@@ -658,13 +654,13 @@ namespace jmixin {
           }
 
         template<typename Container2>
-          bool includes(Container2 other)
+          bool includes(Container2 other) const
           {
             return this->includes(std::execution::seq, other);
           }
 
         template<typename Container2,typename ExecutionPolicy>
-          bool includes(ExecutionPolicy &&policy, Container2 other)
+          bool includes(ExecutionPolicy &&policy, Container2 other) const
           {
             if (std::is_sorted(std::begin(*this), std::end(*this)) == false) {
               throw std::runtime_error("Container must be sorted");
@@ -821,7 +817,7 @@ namespace jmixin {
             return *this;
           }
 
-        Iterator<std::vector<Container>> breaks(std::size_t n)
+        Iterator<std::vector<Container>> breaks(std::size_t n) const
         {
           std::vector<Container> result;
 
@@ -888,7 +884,7 @@ namespace jmixin {
             return Iterator<std::vector<Container>>{result};
           }
 
-        Iterator<typename Container::value_type> flatten()
+        Iterator<typename Container::value_type> flatten() const
         {
           typename Container::value_type result;
 

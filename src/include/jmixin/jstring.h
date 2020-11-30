@@ -30,12 +30,12 @@ namespace jmixin {
       {
       }
 
-      Iterator<String> iterator()
+      Iterator<String> iterator() const
       {
         return Iterator<String>(*this);
       }
 
-      String lower_case()
+      String & lower_case()
       {
         std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
           ch = tolower(ch);
@@ -44,7 +44,7 @@ namespace jmixin {
         return *this;
       }
 
-      String upper_case()
+      String & upper_case()
       {
         std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
           ch = toupper(ch);
@@ -53,7 +53,7 @@ namespace jmixin {
         return *this;
       }
 
-      String swap_case()
+      String & swap_case()
       {
         std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
           if (ch == toupper(ch)) {
@@ -66,7 +66,7 @@ namespace jmixin {
         return *this;
       }
 
-      String captalize()
+      String & captalize()
       {
         for (auto &ch : *this) {
           if (isalpha(ch) != 0) {
@@ -79,7 +79,7 @@ namespace jmixin {
         return *this;
       }
 
-      String uncaptalize()
+      String & uncaptalize()
       {
         for (auto &ch : *this) {
           if (isalnum(ch) != 0) {
@@ -296,7 +296,7 @@ namespace jmixin {
         return *this;
       }
 
-      String repeat(std::size_t n, const String &aggregator = {})
+      String repeat(std::size_t n, const String &aggregator = {}) const
       {
         std::string result;
 
@@ -313,12 +313,12 @@ namespace jmixin {
         return String{result};
       }
 
-      String repeat_left(const String &value, std::size_t n, const String &aggregator = {})
+      String repeat_left(const String &value, std::size_t n, const String &aggregator = {}) const
       {
         return String(value).repeat(n, aggregator) + aggregator + *this;
       }
 
-      String repeat_right(const String &value, std::size_t n, const String &aggregator = {})
+      String repeat_right(const String &value, std::size_t n, const String &aggregator = {}) const
       {
         return *this + aggregator + String(value).repeat(n, aggregator);
       }
@@ -414,7 +414,7 @@ namespace jmixin {
         return match("[[:alnum:]]*");
       }
 
-      String normalize()
+      String normalize() const
       {
         auto values = this->search("(\\w+)");
 
