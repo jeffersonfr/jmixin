@@ -4,6 +4,7 @@ project (jmixin)
 
 option(DEBUG "Enable debug strings" ON)
 option(TESTS "Enable unit tests" ON)
+option(EXAMPLES "Enable examples" ON)
 option(SANITIZE "Enable sanitize" OFF)
 option(COVERAGE "Enable coverage" ON)
 option(PROFILE "Enable profile" OFF)
@@ -26,7 +27,15 @@ if (PROFILE)
   add_definitions("-pg")
 endif()
 
+add_subdirectory(src)
+
 enable_testing()
 
-add_subdirectory(src)
-add_subdirectory(examples)
+if (TESTS)
+  add_subdirectory(tests)
+endif()
+
+if (EXAMPLES)
+  add_subdirectory(examples)
+endif()
+

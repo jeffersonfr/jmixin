@@ -23,6 +23,3 @@ if (COVERAGE)
   )
 endif()
 
-if (TESTS)
-  add_subdirectory(tests)
-endif()
