@@ -126,6 +126,29 @@ namespace jmixin {
         return std::regex_replace(*this, r, format, flags);
       }
 
+      Iterator<std::vector<Iterator<std::vector<String>>>> groups(const String &pattern, std::regex_constants::match_flag_type flags = std::regex_constants::match_default)
+      {
+        std::regex r(pattern, std::regex_constants::extended);
+ 
+        Iterator<std::vector<Iterator<std::vector<String>>>> result;
+
+        for(std::sregex_iterator i=std::sregex_iterator(this->begin(), this->end(), r, flags); i!=std::sregex_iterator(); i++) {
+            std::smatch m = *i;
+
+            Iterator<std::vector<String>> groupsResult;
+
+            for(std::size_t index=0; index<m.size(); index++) {
+                if (!m[index].str().empty()) {
+                    groupsResult.push_back(m[index].str());
+                }
+            }
+
+            result.push_back(groupsResult);
+        }
+
+        return result;
+      }
+
       bool match(const String &pattern, std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const
       {
         const std::regex r{pattern, flags};
