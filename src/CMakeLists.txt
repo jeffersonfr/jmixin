@@ -4,6 +4,7 @@ project (jmixin)
 
 add_library(${PROJECT_NAME} SHARED
   jiterator.cpp
+  jstring.cpp
   )
 
 include_directories(
