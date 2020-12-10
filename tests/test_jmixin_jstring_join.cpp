@@ -2,7 +2,7 @@
 
 int main()
 {
-  if (jmixin::join(std::initializer_list<jmixin::String>{"a", "b", "c", "d"}) == "a,b,c,d") {
+  if (jmixin::join(std::initializer_list{"a", "b", "c", "d"}) == "a,b,c,d") {
     return 0;
   }
 

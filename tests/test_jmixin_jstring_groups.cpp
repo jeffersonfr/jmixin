@@ -3,7 +3,7 @@
 int main()
 {
   if (jmixin::String("Hello, world !")
-    .groups("(Hello), (world)")[0].skip(1) == std::vector<jmixin::String>{"Hello", "world"}) {
+    .groups("(Hello), (world)")[0].skip(1) == std::vector<jmixin::String<std::string>>{"Hello", "world"}) {
     return 0;
   }
 
