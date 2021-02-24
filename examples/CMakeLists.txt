@@ -43,3 +43,5 @@ endmacro()
 
 module_example(megasena)
 module_example(process_info)
+module_example(ffmpeg_info)
+module_example(certidao_casamento)

@@ -11,10 +11,6 @@ option(PROFILE "Enable profile" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if (DEBUG)
-  add_definitions("-g3 -ggdb3 -Wall -Wextra")
-endif()
-
 if (SANITIZE)
   add_definitions("-fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope")
 endif()
@@ -29,9 +25,8 @@ endif()
 
 add_subdirectory(src)
 
-enable_testing()
-
 if (TESTS)
+  enable_testing()
   add_subdirectory(tests)
 endif()
 
