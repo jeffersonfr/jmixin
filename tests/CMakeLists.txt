@@ -7,7 +7,9 @@ macro(module_test)
   )
 
   add_test(${test_file} ${test_file}
+    COMMAND $<TARGET_FILE:${ARGV0}>
   )
+
 
   target_link_libraries(${test_file} PUBLIC
     ${PROJECT_NAME}
