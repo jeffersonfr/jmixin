@@ -10,7 +10,6 @@ macro(module_test)
     COMMAND $<TARGET_FILE:${ARGV0}>
   )
 
-
   target_link_libraries(${test_file} PUBLIC
     ${PROJECT_NAME}
     pthread

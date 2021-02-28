@@ -34,3 +34,11 @@ if (EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+# generate jmixin.pc
+configure_file(
+  ${PROJECT_SOURCE_DIR}/jmixin.pc.in
+  ${PROJECT_BINARY_DIR}/jmixin.pc
+  @ONLY
+)
+
+install(FILES ${CMAKE_BINARY_DIR}/jmixin.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
