@@ -24,11 +24,6 @@ namespace jmixin {
     public:
       String() = default;
 
-      String(const char *str):
-        StringBase(str)
-      {
-      }
-
       String(const StringBase &str):
         StringBase(str)
       {
@@ -1611,6 +1606,7 @@ namespace jmixin {
 
         return o.str();
       }
+
   };
 
   template<typename Container, typename StringBase = std::string>

@@ -10,10 +10,16 @@ macro(module_test)
     COMMAND $<TARGET_FILE:${ARGV0}>
   )
 
+  set (PARALELL_LIBRARIES)
+
+if (PARELELL)
+  set (PARALELL_LIBRARIES tbb)
+endif()
+
   target_link_libraries(${test_file} PUBLIC
     ${PROJECT_NAME}
+    ${PARALELL_LIBRARIES}
     pthread
-    tbb
   )
 
   if (SANITIZE)
@@ -98,6 +104,7 @@ module_test(jiterator_flatten)
 module_test(jiterator_generate)
 module_test(jiterator_partition)
 
+module_test(jstring_construct)
 module_test(jstring_iterator)
 module_test(jstring_upper_case)
 module_test(jstring_lower_case)

@@ -13,11 +13,18 @@ macro(module_example)
     ../src/include
   )
 
+  set (PARALELL_LIBRARIES)
+
+if (PARELELL)
+  set (PARALELL_LIBRARIES tbb)
+endif()
+
   target_link_libraries(${example_file} PUBLIC
     ${PROJECT_NAME}
+    ${PARALELL_LIBRARIES}
     pthread
-    tbb
   )
+endif()
 
   if (SANITIZE)
     target_link_libraries(${example_file} PUBLIC

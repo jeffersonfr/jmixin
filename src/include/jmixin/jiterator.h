@@ -124,34 +124,6 @@ namespace jmixin {
         }
 #endif
 
-        template<typename Initial>
-          typename Container::value_type sum(Initial initial = Initial()) const
-          {
-            return std::reduce(std::begin(*this), std::end(*this), initial);
-          }
-
-#ifdef JMIXIN_JITERATOR_PARALLEL
-        template<typename Initial, typename ExecutionPolicy>
-          typename Container::value_type sum(ExecutionPolicy &&policy, Initial initial) const
-          {
-            return std::reduce(policy, std::begin(*this), std::end(*this), initial);
-          }
-#endif
-
-        template<typename Initial>
-          typename Container::value_type product(Initial initial = Initial()) const
-          {
-            return std::reduce(std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
-          }
-
-#ifdef JMIXIN_JITERATOR_PARALLEL
-        template<typename Initial, typename ExecutionPolicy>
-          typename Container::value_type product(ExecutionPolicy &&policy, Initial initial) const
-          {
-            return std::reduce(policy, std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
-          }
-#endif
-
         template<typename Container2, typename Predicate>
           Iterator<Container> & combine(Container2 other, Predicate predicate)
           {
@@ -345,54 +317,6 @@ namespace jmixin {
             }
 
             return *this;
-          }
-#endif
-
-        template<typename Callback>
-          Iterator<Container> & for_each_n(std::size_t n, Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
-          {
-            if (begin) {
-              begin();
-            }
-
-            std::for_each_n(std::begin(*this), n, callback);
-
-            if (end) {
-              end();
-            }
-
-            return *this;
-          }
-
-#ifdef JMIXIN_JITERATOR_PARALLEL
-        template<typename Callback, typename ExecutionPolicy>
-          Iterator<Container> & for_each_n(ExecutionPolicy &&policy, std::size_t n, Callback callback, std::function<void()> begin, std::function<void()> end)
-          {
-            if (begin) {
-              begin();
-            }
-
-            std::for_each_n(policy, std::begin(*this), n, callback);
-
-            if (end) {
-              end();
-            }
-
-            return *this;
-          }
-#endif
-
-        template<typename Predicate, typename Initial>
-          std::optional<Initial> zip(Predicate predicate, Initial value = Initial()) const
-          {
-            return std::reduce(std::begin(*this), std::end(*this), value, predicate);
-          }
-
-#ifdef JMIXIN_JITERATOR_PARALLEL
-        template<typename Predicate, typename Initial, typename ExecutionPolicy>
-          std::optional<Initial> zip(ExecutionPolicy &&policy, Predicate predicate, Initial value) const
-          {
-            return std::reduce(policy, std::begin(*this), std::end(*this), value, predicate);
           }
 #endif
 
@@ -1153,6 +1077,86 @@ namespace jmixin {
 
           return result;
         }
+
+#ifdef JMIXIN_JITERATOR_EXTRA
+
+        template<typename Initial>
+          typename Container::value_type sum(Initial initial = Initial()) const
+          {
+            return std::reduce(std::begin(*this), std::end(*this), initial);
+          }
+
+#ifdef JMIXIN_JITERATOR_PARALLEL
+        template<typename Initial, typename ExecutionPolicy>
+          typename Container::value_type sum(ExecutionPolicy &&policy, Initial initial) const
+          {
+            return std::reduce(policy, std::begin(*this), std::end(*this), initial);
+          }
+#endif
+
+        template<typename Initial>
+          typename Container::value_type product(Initial initial = Initial()) const
+          {
+            return std::reduce(std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
+          }
+
+#ifdef JMIXIN_JITERATOR_PARALLEL
+        template<typename Initial, typename ExecutionPolicy>
+          typename Container::value_type product(ExecutionPolicy &&policy, Initial initial) const
+          {
+            return std::reduce(policy, std::begin(*this), std::end(*this), initial, std::multiplies<typename Container::value_type>());
+          }
+#endif
+
+        template<typename Predicate, typename Initial>
+          std::optional<Initial> zip(Predicate predicate, Initial value = Initial()) const
+          {
+            return std::reduce(std::begin(*this), std::end(*this), value, predicate);
+          }
+
+#ifdef JMIXIN_JITERATOR_PARALLEL
+        template<typename Predicate, typename Initial, typename ExecutionPolicy>
+          std::optional<Initial> zip(ExecutionPolicy &&policy, Predicate predicate, Initial value) const
+          {
+            return std::reduce(policy, std::begin(*this), std::end(*this), value, predicate);
+          }
+#endif
+
+        template<typename Callback>
+          Iterator<Container> & for_each_n(std::size_t n, Callback callback, std::function<void()> begin = nullptr, std::function<void()> end = nullptr)
+          {
+            if (begin) {
+              begin();
+            }
+
+            std::for_each_n(std::begin(*this), n, callback);
+
+            if (end) {
+              end();
+            }
+
+            return *this;
+          }
+
+#ifdef JMIXIN_JITERATOR_PARALLEL
+        template<typename Callback, typename ExecutionPolicy>
+          Iterator<Container> & for_each_n(ExecutionPolicy &&policy, std::size_t n, Callback callback, std::function<void()> begin, std::function<void()> end)
+          {
+            if (begin) {
+              begin();
+            }
+
+            std::for_each_n(policy, std::begin(*this), n, callback);
+
+            if (end) {
+              end();
+            }
+
+            return *this;
+          }
+#endif
+
+#endif
 
     };
 

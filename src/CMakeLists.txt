@@ -25,4 +25,4 @@ if (COVERAGE)
 endif()
 
 install(DIRECTORY include/jmixin DESTINATION /usr/local/include)
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/local/lib)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION /usr/local/lib)
