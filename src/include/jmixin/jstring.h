@@ -9,6 +9,7 @@
 #include <set>
 #include <codecvt>
 #include <iomanip>
+#include <sstream>
 
 namespace jmixin {
 
@@ -441,7 +442,7 @@ namespace jmixin {
         return this->substr(0, length - value.size()) + value;
       }
 
-      Iterator<std::vector<String>> split(const String &pattern = String("\\s+")) const
+      Iterator<std::vector<String>> split(const String &pattern = String("\\s")) const
       {
           std::vector<String> result;
 
@@ -1505,7 +1506,7 @@ namespace jmixin {
 
       String encode_url(bool upper_case = false)
       {
-        static const char kUnreservedChar[] = {
+        static const int kUnreservedChar[] = {
         //0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1
@@ -1525,7 +1526,7 @@ namespace jmixin {
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  // F
         };
 
-        std::stringstream o;
+        std::ostringstream o;
 
         for (std::string::const_iterator it = this->begin(); it != this->end(); ++it) {
           if (kUnreservedChar[static_cast<std::size_t>(*it)]) {
@@ -1546,7 +1547,7 @@ namespace jmixin {
 
       String decode_url()
       {
-        static const char kHexToNum[] = {
+        static const int kHexToNum[] = {
         // 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 1
@@ -1576,7 +1577,7 @@ namespace jmixin {
               throw std::runtime_error("Invalid encoded url");
             }
 
-            tmp = kHexToNum[static_cast<std::size_t>(*it)];
+            tmp = static_cast<char>(kHexToNum[static_cast<std::size_t>(*it)]);
             
             if (tmp < 0) {
               throw std::runtime_error("Invalid encoded url");
