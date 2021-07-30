@@ -24,7 +24,6 @@ endif()
     ${PARALELL_LIBRARIES}
     pthread
   )
-endif()
 
   if (SANITIZE)
     target_link_libraries(${example_file} PUBLIC
