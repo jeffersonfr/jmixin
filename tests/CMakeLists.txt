@@ -10,16 +10,16 @@ macro(module_test)
     COMMAND $<TARGET_FILE:${ARGV0}>
   )
 
-  set (PARALELL_LIBRARIES)
-
 if (PARELELL)
   set (PARALELL_LIBRARIES tbb)
 endif()
 
+  target_include_directories(${test_file} PUBLIC
+    ../src/include
+  )
+
   target_link_libraries(${test_file} PUBLIC
-    ${PROJECT_NAME}
-    ${PARALELL_LIBRARIES}
-    pthread
+    jmixin
   )
 
   if (SANITIZE)
@@ -55,14 +55,10 @@ module_test(jiterator_le)
 module_test(jiterator_gt)
 module_test(jiterator_ge)
 module_test(jiterator_for_each)
-module_test(jiterator_for_each_n)
 module_test(jiterator_sort)
 module_test(jiterator_filter)
 module_test(jiterator_count)
 module_test(jiterator_step)
-module_test(jiterator_sum)
-module_test(jiterator_product)
-module_test(jiterator_zip)
 module_test(jiterator_map)
 module_test(jiterator_build)
 module_test(jiterator_fill)
@@ -70,12 +66,9 @@ module_test(jiterator_fill_n)
 module_test(jiterator_skip)
 module_test(jiterator_take)
 module_test(jiterator_reverse)
-module_test(jiterator_shuffle)
-module_test(jiterator_sample)
 module_test(jiterator_left_rotate)
 module_test(jiterator_right_rotate)
 module_test(jiterator_enumerate)
-module_test(jiterator_swap)
 module_test(jiterator_first)
 module_test(jiterator_last)
 module_test(jiterator_nth)
@@ -103,6 +96,16 @@ module_test(jiterator_chop)
 module_test(jiterator_flatten)
 module_test(jiterator_generate)
 module_test(jiterator_partition)
+module_test(jiterator_swap)
+module_test(jiterator_sample)
+module_test(jiterator_shuffle)
+
+if (EXTRA_FUNCTIONS)
+  module_test(jiterator_sum)
+  module_test(jiterator_product)
+  module_test(jiterator_zip)
+  module_test(jiterator_for_each_n)
+endif ()
 
 module_test(jstring_construct)
 module_test(jstring_iterator)

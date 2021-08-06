@@ -2,13 +2,13 @@
  
 namespace jmixin {
 
-  String<std::string> from_hex(const std::string &str)
+  String from_hex(const std::string &str)
   {
     if (str.size() % 2) {
       throw std::runtime_error("Invalid input string");
     }
 
-    String<std::string> result;
+    String result;
 
     result.reserve(str.size()/2);
 
@@ -36,9 +36,9 @@ namespace jmixin {
     return result;
   }
 
-  String<std::string> latin1_to_utf8(const std::string &str)
+  String latin1_to_utf8(const std::string &str)
   {
-    String<std::string> out;
+    String out;
 
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
       std::uint8_t ch = *it;

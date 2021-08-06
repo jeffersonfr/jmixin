@@ -19,15 +19,22 @@ namespace jmixin {
     right
   };
 
-  template<typename StringBase = std::string>
-  class String : public StringBase {
+  class String : public std::string {
 
     public:
       String() = default;
 
-      String(const StringBase &str):
-        StringBase(str)
+      template<typename T>
+      String(T &&str):
+        std::string(str)
       {
+      }
+
+      String(const std::wstring &str)
+      {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+        // *this = converter.to_bytes(*this);
       }
 
       Iterator<String> iterator() const
@@ -35,26 +42,11 @@ namespace jmixin {
         return Iterator<String>(*this);
       }
 
-      String<std::wstring> wide() const
+      std::wstring wide() const
       {
-        if constexpr (std::is_base_of_v<StringBase, std::wstring>) {
-          return *this;
-        } else {
-          std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
-          return converter.from_bytes(*this);
-        }
-      }
-
-      String<std::string> chars() const
-      {
-        if constexpr (std::is_base_of_v<StringBase, std::string>) {
-          return *this;
-        } else {
-          std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-
-          return converter.to_bytes(*this);
-        }
+        return converter.from_bytes(*this);
       }
 
       String hex()
@@ -78,20 +70,15 @@ namespace jmixin {
           "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"
         };
 
-        String<std::string> str = chars();
-        String<std::string> result;
+        String result;
 
-        result.reserve(str.size()*2);
+        result.reserve(size()*2);
 
-        for (auto ch : str) {
+        for (auto ch : *this) {
           result = result + hex_table[static_cast<std::size_t>(ch)];
         }
         
-        if constexpr (std::is_base_of_v<StringBase, std::string>) {
-          return result;
-        } else {
-          return result.wide();
-        }
+        return result;
       }
 
       String & lower_case()
@@ -238,7 +225,7 @@ namespace jmixin {
         
         std::vector<String> result;
         std::smatch matches;
-        StringBase str = *this;
+        String str = *this;
 
         while (regex_search(str, matches, r)) {
           result.push_back(matches[0].str());
@@ -286,8 +273,8 @@ namespace jmixin {
           return false;
         }
 
-        typename StringBase::const_iterator i = std::begin(*this);
-        typename StringBase::const_iterator j = std::cbegin(value);
+        typename String::const_iterator i = std::begin(*this);
+        typename String::const_iterator j = std::cbegin(value);
 
         for (; i!=std::end(*this) and j!=std::cend(value);) {
           if (*i++ != *j++) {
@@ -324,8 +311,8 @@ namespace jmixin {
           return false;
         }
 
-        typename StringBase::const_iterator i = std::begin(*this) + std::size(*this) - std::size(value);
-        typename StringBase::const_iterator j = std::cbegin(value);
+        typename String::const_iterator i = std::begin(*this) + std::size(*this) - std::size(value);
+        typename String::const_iterator j = std::cbegin(value);
 
         for (; i!=std::end(*this) and j!=std::end(value);) {
           if (*i++ != *j++) {
@@ -376,7 +363,7 @@ namespace jmixin {
 
       String repeat(std::size_t n, const String &aggregator = {}) const
       {
-        StringBase result;
+        String result;
 
         result.reserve(this->size()*n);
 
@@ -388,7 +375,7 @@ namespace jmixin {
           }
         }
 
-        return String{result};
+        return result;
       }
 
       String left_repeat(const String &value, std::size_t n, const String &aggregator = {}) const
@@ -410,12 +397,12 @@ namespace jmixin {
         std::size_t padding = length - this->size();
 
         if (align == align::left) {
-          return *this + StringBase(padding, fill);
+          return *this + std::string(padding, fill);
         } else if (align == align::right) {
-          return StringBase(padding, fill) + *this;
+          return std::string(padding, fill) + *this;
         }
 
-        return StringBase(padding/2, fill) + *this + StringBase(padding/2 + padding%2, fill);
+        return std::string(padding/2, fill) + *this + std::string(padding/2 + padding%2, fill);
       }
 
       String left(std::size_t length, const char fill = ' ') const
@@ -496,7 +483,7 @@ namespace jmixin {
       {
         auto values = this->search("(\\w+)");
 
-        StringBase result;
+        String result;
 
         for (const auto &value : values) {
           result = result + value + " ";
@@ -507,7 +494,7 @@ namespace jmixin {
 
       String encode_base64(const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const
       {
-        StringBase out;
+        String out;
         int val = 0;
         int valb = -6;
 
@@ -535,22 +522,22 @@ namespace jmixin {
 
       String decode_base64(const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const
       {
-        std::vector<int> T(256, -1);
-        StringBase out;
+        std::vector<int> v(256, -1);
+        String out;
 
         for (int i=0; i<64; i++) {
-          T[dictionary[i]] = i;
+          v[dictionary[i]] = i;
         }
 
         int val = 0;
         int valb = -8;
 
         for (uint8_t c : *this) {
-          if (T[c] == -1) {
+          if (v[c] == -1) {
             break;
           }
 
-          val = (val << 6) + T[c];
+          val = (val << 6) + v[c];
           valb = valb + 6;
 
           if (valb >= 0) {
@@ -652,7 +639,7 @@ namespace jmixin {
         //  return std::format(*this, std::forward<Args>(args)...);
       }
 
-      String<std::string> asciify()
+      String asciify()
       {
         static struct {
           int id;
@@ -1447,9 +1434,8 @@ namespace jmixin {
           return -1;
         };
 
-        std::string str = this->chars();
-        const char *utf8 = str.c_str();
-        std::size_t len = str.size();
+        const char *utf8 = this->c_str();
+        std::size_t len = this->size();
         char *ascii = new char[len * 4 + 1];
         std::size_t in = 0;
         int out = 0;
@@ -1610,8 +1596,8 @@ namespace jmixin {
 
   };
 
-  template<typename Container, typename StringBase = std::string>
-    String<StringBase> join(const Container &values, std::string aggregate = std::string{","})
+  template<typename Container>
+    String join(const Container &values, std::string aggregate = std::string{","})
     {
       String result;
 
@@ -1622,8 +1608,9 @@ namespace jmixin {
       return result.substr(0, result.size() - aggregate.size());
     }
 
-  String<std::string> from_hex(const std::string &str);
+  String from_hex(const std::string &str);
   
-  String<std::string> latin1_to_utf8(const std::string &str);
+  String latin1_to_utf8(const std::string &str);
 
 }
+

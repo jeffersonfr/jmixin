@@ -7,9 +7,9 @@
 int main()
 {
   if (jmixin::Iterator(std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9})
-    .build<std::vector<jmixin::String<std::string>>>([](const auto &thiz) {
+    .build<std::vector<jmixin::String>>([](const auto &thiz) {
       return jmixin::String("hello").repeat(thiz.size(), ",").split(",");
-    }) == std::vector<jmixin::String<std::string>>{"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello"}) {
+    }) == std::vector<jmixin::String>{"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello"}) {
     return 0;
   }
 
