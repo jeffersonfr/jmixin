@@ -1,53 +1,26 @@
 cmake_minimum_required (VERSION 3.0)
 
-macro(module_example)
-  set(example_file example_${ARGV0})
+find_package(Threads REQUIRED)
 
-  add_executable(${example_file} ${example_file}
+macro(module_test)
+  add_executable(${ARGV0}_example
+    ${ARGV0}.cpp
   )
 
-  add_test(${example_file} ${example_file}
+  target_link_libraries(${ARGV0}_example
+    PRIVATE
+      jmixin
   )
 
-  target_include_directories(${PROJECT_NAME} PUBLIC
-    ../src/include
-  )
-
-  set (PARALELL_LIBRARIES)
-
-if (PARELELL)
-  set (PARALELL_LIBRARIES tbb)
-endif()
-
-  target_link_libraries(${example_file} PUBLIC
-    ${PROJECT_NAME}
-    ${PARALELL_LIBRARIES}
-    pthread
-  )
-
-  if (SANITIZE)
-    target_link_libraries(${example_file} PUBLIC
-      -fsanitize=address
-      -fsanitize=address
-      -fsanitize=leak
-      -fsanitize=undefined
-      -fsanitize-address-use-after-scope
+  if (PARELELL)
+    target_link_libraries(${ARGV0}_example
+      PRIVATE
+        tbb
     )
-  endif()
-  
-  if (COVERAGE)
-    target_link_libraries(${example_file} PUBLIC
-      --coverage 
-      -lgcov
-    )
-  endif()
-
-  if (PROFILE)
-    add_definitions("-pg")
   endif()
 endmacro()
 
-module_example(megasena)
-module_example(process_info)
-module_example(ffmpeg_info)
-module_example(certidao_casamento)
+#module_test(megasena)
+module_test(process_info)
+module_test(ffmpeg_info)
+module_test(certidao_casamento)

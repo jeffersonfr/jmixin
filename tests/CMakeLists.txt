@@ -1,47 +1,23 @@
 cmake_minimum_required (VERSION 3.0)
 
 macro(module_test)
-  set(test_file test_${PROJECT_NAME}_${ARGV0})
-
-  add_executable(${test_file} ${test_file}
+  add_executable(${ARGV0}_test
+    ${ARGV0}.cpp
   )
 
-  add_test(${test_file} ${test_file}
+  add_test(${ARGV0}_test ${ARGV0}_test
     COMMAND $<TARGET_FILE:${ARGV0}>
   )
 
-if (PARELELL)
-  set (PARALELL_LIBRARIES tbb)
-endif()
-
-  target_include_directories(${test_file} PUBLIC
-    ../src/include
+  target_link_libraries(${ARGV0}_test
+    PRIVATE                                                                                                                                                                              
+      jmixin
   )
-
-  target_link_libraries(${test_file} PUBLIC
-    jmixin
-  )
-
-  if (SANITIZE)
-    target_link_libraries(${test_file} PUBLIC
-      -fsanitize=address
-      -fsanitize=address
-      -fsanitize=leak
-      -fsanitize=undefined
-      -fsanitize-address-use-after-scope
-    )
-  endif()
   
-  if (COVERAGE)
-    target_link_libraries(${test_file} PUBLIC
-      --coverage 
-      -lgcov
-    )
-  endif()
-
-  if (PROFILE)
-    target_link_libraries(${test_file} PUBLIC
-      -pg
+  if (PARELELL)
+    target_link_libraries(${ARGV0}_test
+      PRIVATE
+        tbb
     )
   endif()
 endmacro()
