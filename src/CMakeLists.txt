@@ -24,5 +24,5 @@ if (COVERAGE)
   )
 endif()
 
-install(DIRECTORY include/jmixin DESTINATION /usr/local/include)
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION /usr/local/lib)
+install(DIRECTORY include/jmixin DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
