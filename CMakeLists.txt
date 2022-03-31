@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 3.0)
 
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "In-source build is not allowed")
+endif()
+
 project (jmixin)
 
 option(PARELELL_FUNCTIONS "Enable paralell algorithms" OFF)
@@ -10,7 +14,8 @@ option(SANITIZE "Enable sanitize" OFF)
 option(COVERAGE "Enable coverage" OFF)
 option(PROFILE "Enable profile" OFF)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (PARELELL_FUNCTIONS)
   add_definitions(-DJMIXIN_JITERATOR_PARALLEL)
@@ -20,30 +25,27 @@ if (EXTRA_FUNCTIONS)
   add_definitions(-DJMIXIN_JITERATOR_EXTRA)
 endif()
 
-if (SANITIZE)
-  set(CMAKE_CXX_FLAGS 
-    "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope"
-  )
-endif()
+add_compile_options(-Wall -Wextra -Wpedantic -pedantic -Werror)
 
 if (COVERAGE)
-  set(CMAKE_CXX_FLAGS 
-    "${CMAKE_CXX_FLAGS} --coverage -lgcov"
-  )
+  add_compile_options(--coverage)
+  add_link_options(-lgcov)
+endif()
+
+if (SANITIZE)
+  set(SANITIZE_FLAGS -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope -U_FORTIFY_SOURCE -fno-omit-frame-pointer -fno-common)
+
+  add_compile_options(${SANITIZE_FLAGS})
+  add_link_options(${SANITIZE_FLAGS} -lasan -lubsan)
 endif()
 
 if (PROFILE)
-  set(CMAKE_CXX_FLAGS 
-    "${CMAKE_CXX_FLAGS} -pg -fprofile-arcs -ftest-coverage -fprofile-generate -fno-inline -O0"
-  )
-  set(CMAKE_EXE_LINKER_FLAGS 
-    "${CMAKE_EXE_LINKER_FLAGS} -pg"
-  )
+  add_compile_options(-pg -fprofile-arcs -ftest-coverage -fprofile-generate -fno-inline -O0)
 endif()
 
-add_subdirectory(src)
-
 enable_testing()
+
+add_subdirectory(src)
 
 if (TESTS)
   add_subdirectory(tests)
@@ -60,4 +62,7 @@ configure_file(
   @ONLY
 )
 
+# generate jmixin.pc
+configure_file(${PROJECT_SOURCE_DIR}/jmixin.pc.in ${PROJECT_BINARY_DIR}/jmixin.pc.gen @ONLY)
+file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/jmixin.pc INPUT "${CMAKE_BINARY_DIR}/jmixin.pc.gen")
 install(FILES ${CMAKE_BINARY_DIR}/jmixin.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
