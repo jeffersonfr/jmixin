@@ -1,6 +1,6 @@
 #include "jmixin/jstring.h"
 
-int main(int argc, char *argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
   char str1[] = "Hello, world !";
   char str2[15] = "Hello, world !";

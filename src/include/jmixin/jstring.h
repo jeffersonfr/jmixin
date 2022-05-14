@@ -30,13 +30,6 @@ namespace jmixin {
       {
       }
 
-      String(const std::wstring &str)
-      {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-
-        // *this = converter.to_bytes(*this);
-      }
-
       Iterator<String> iterator() const
       {
         return Iterator<String>(*this);
