@@ -5,6 +5,7 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 endif()
 
 project(jmixin
+  LANGUAGES CXX
   HOMEPAGE_URL https://github.com/jeffersonfr/jmixin
   DESCRIPTION "A utility classe"
   VERSION 1.0.0
@@ -59,7 +60,7 @@ if (EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-# generate jmixin.pc
+# generate pc file
 configure_file(jmixin.pc.in jmixin.pc @ONLY)
 
 install(FILES ${CMAKE_BINARY_DIR}/jmixin.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
