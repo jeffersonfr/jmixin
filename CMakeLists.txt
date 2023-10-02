@@ -4,7 +4,11 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "In-source build is not allowed")
 endif()
 
-project (jmixin)
+project(jmixin
+  HOMEPAGE_URL https://github.com/jeffersonfr/jmixin
+  DESCRIPTION "A utility classe"
+  VERSION 1.0.0
+)
 
 option(PARELELL_FUNCTIONS "Enable paralell algorithms" OFF)
 option(EXTRA_FUNCTIONS "Enable extra functions available in c++20" OFF)
@@ -56,13 +60,6 @@ if (EXAMPLES)
 endif()
 
 # generate jmixin.pc
-configure_file(
-  ${PROJECT_SOURCE_DIR}/jmixin.pc.in
-  ${PROJECT_BINARY_DIR}/jmixin.pc
-  @ONLY
-)
+configure_file(jmixin.pc.in jmixin.pc @ONLY)
 
-# generate jmixin.pc
-configure_file(${PROJECT_SOURCE_DIR}/jmixin.pc.in ${PROJECT_BINARY_DIR}/jmixin.pc.gen @ONLY)
-file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/jmixin.pc INPUT "${CMAKE_BINARY_DIR}/jmixin.pc.gen")
 install(FILES ${CMAKE_BINARY_DIR}/jmixin.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)

@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include <string.h>
+
 namespace jmixin {
 
   enum class align {
