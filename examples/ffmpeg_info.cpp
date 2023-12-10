@@ -52,7 +52,7 @@ std::vector<std::string> mediainfo(const std::string &path)
   }
 
   free(line);
-  fclose(info);
+  pclose(info);
 
   return result;
 }
