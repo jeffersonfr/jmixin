@@ -417,7 +417,7 @@ namespace jmixin {
 
       String ellipses(std::size_t length, const String &value = String("...")) const
       {
-        if (this->size() < length) {
+        if (this->size() <= length) {
           return *this;
         }
 
