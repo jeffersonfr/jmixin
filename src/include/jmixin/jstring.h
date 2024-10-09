@@ -13,6 +13,8 @@
 
 #include <string.h>
 
+#include <fmt/format.h>
+
 namespace jmixin {
 
   enum class align {
@@ -76,27 +78,33 @@ namespace jmixin {
         return result;
       }
 
-      String & lower_case()
+      String lower_case()
       {
-        std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
+        String thiz{*this};
+
+        std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
           ch = tolower(ch);
         });
 
-        return *this;
+        return thiz;
       }
 
-      String & upper_case()
+      String upper_case()
       {
-        std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
+        String thiz{*this};
+
+        std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
           ch = toupper(ch);
         });
 
-        return *this;
+        return thiz;
       }
 
-      String & swap_case()
+      String swap_case()
       {
-        std::for_each(std::begin(*this), std::end(*this), [](auto &ch) {
+        String thiz{*this};
+
+        std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
           if (ch == toupper(ch)) {
             ch = tolower(ch);
           } else {
@@ -104,12 +112,14 @@ namespace jmixin {
           }
         });
 
-        return *this;
+        return thiz;
       }
 
-      String & captalize()
+      String captalize()
       {
-        for (auto &ch : *this) {
+        String thiz{*this};
+
+        for (auto &ch : thiz) {
           if (isalpha(ch) != 0) {
             ch = toupper(ch);
 
@@ -117,12 +127,14 @@ namespace jmixin {
           }
         }
 
-        return *this;
+        return thiz;
       }
 
-      String & uncaptalize()
+      String uncaptalize()
       {
-        for (auto &ch : *this) {
+        String thiz{*this};
+
+        for (auto &ch : thiz) {
           if (isalnum(ch) != 0) {
             ch = tolower(ch);
 
@@ -130,7 +142,7 @@ namespace jmixin {
           }
         }
 
-        return *this;
+        return thiz;
       }
 
       String left_trim()
@@ -338,22 +350,26 @@ namespace jmixin {
         return true;
       }
 
-      String & append_if_missing(const String &value)
+      String append_if_missing(const String &value)
       {
+        String thiz{*this};
+
         if (contains(value + "$") == false) {
-          *this = *this + value;
+          thiz = thiz + value;
         }
 
-        return *this;
+        return thiz;
       }
 
-      String & prepend_if_missing(const String &value)
+      String prepend_if_missing(const String &value)
       {
+        String thiz{*this};
+
         if (contains("^" + value) == false) {
-          *this = value + *this;
+          thiz = value + thiz;
         }
 
-        return *this;
+        return thiz;
       }
 
       String repeat(std::size_t n, const String &aggregator = {}) const
@@ -619,19 +635,7 @@ namespace jmixin {
       template<typename ...Args>
       String format(Args &&...args)
       {
-        std::size_t size = snprintf(nullptr, 0, this->c_str(), args...) + 1;
-
-        if (size <= 0) {
-          throw std::runtime_error("Parser error");
-        }
-
-        std::unique_ptr<char[]> tmp(new char[size]);
-
-        snprintf(tmp.get(), size, this->c_str(), args...);
-
-        return std::string(tmp.get(), tmp.get() + size - 1);
-
-        //  return std::format(*this, std::forward<Args>(args)...);
+        return String{fmt::vformat(*this, fmt::make_format_args(args...))};
       }
 
       String asciify()

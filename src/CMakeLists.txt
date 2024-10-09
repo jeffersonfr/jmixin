@@ -2,6 +2,15 @@ cmake_minimum_required (VERSION 3.0)
 
 project (jmixin)
 
+include(FetchContent)
+
+# fmt
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+)
+FetchContent_MakeAvailable(fmt)
+
 add_library(${PROJECT_NAME} SHARED
   jiterator.cpp
   jstring.cpp
@@ -15,6 +24,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
+  fmt
   )
 
 if (COVERAGE)
