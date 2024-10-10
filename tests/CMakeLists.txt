@@ -14,7 +14,7 @@ macro(module_test)
       jmixin
   )
   
-  if (PARELELL)
+  if (JMIXIN_PARELELL_FUNCTIONS)
     target_link_libraries(${ARGV0}_test
       PRIVATE
         tbb
