@@ -11,28 +11,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
-add_library(${PROJECT_NAME} SHARED
-  jiterator.cpp
-  jstring.cpp
-  )
+add_library(${PROJECT_NAME} INTERFACE)
 
-include_directories(
-  )
+target_include_directories(${PROJECT_NAME}
+        INTERFACE
+            "${PROJECT_SOURCE_DIR}/include"
+)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "${PROJECT_SOURCE_DIR}/include"
-  )
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-  fmt
-  )
-
-if (JMIXIN_COVERAGE)
-  target_link_libraries(${PROJECT_NAME} PUBLIC
-  --coverage
-  -lgcov
-  )
-endif()
+target_link_libraries(${PROJECT_NAME}
+        INTERFACE
+            fmt
+)
 
 install(DIRECTORY include/jmixin DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
