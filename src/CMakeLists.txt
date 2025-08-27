@@ -27,7 +27,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   fmt
   )
 
-if (COVERAGE)
+if (JMIXIN_COVERAGE)
   target_link_libraries(${PROJECT_NAME} PUBLIC
   --coverage
   -lgcov
