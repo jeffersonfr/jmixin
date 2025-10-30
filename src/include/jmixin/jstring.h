@@ -110,7 +110,7 @@ namespace jmixin {
 
       for (auto &ch: thiz) {
         if (isalpha(ch) != 0) {
-          ch = toupper(ch);
+          ch = static_cast<char>(toupper(ch));
 
           break;
         }
@@ -124,7 +124,7 @@ namespace jmixin {
 
       for (auto &ch: thiz) {
         if (isalnum(ch) != 0) {
-          ch = tolower(ch);
+          ch = static_cast<char>(toupper(ch));
 
           break;
         }
@@ -1496,7 +1496,7 @@ namespace jmixin {
     }
 
     String decode_url() {
-      static const int kHexToNum[] = {
+      static const char kHexToNum[] = {
         // 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 1
@@ -1518,7 +1518,6 @@ namespace jmixin {
 
       std::stringstream o;
       std::string::const_iterator it = this->begin();
-      char tmp, encoded_char;
 
       while (it != this->end()) {
         if (*it == '%') {
@@ -1526,27 +1525,27 @@ namespace jmixin {
             throw std::runtime_error("Invalid encoded url");
           }
 
-          tmp = static_cast<char>(kHexToNum[static_cast<std::size_t>(*it)]);
+          char tmp = static_cast<char>(kHexToNum[static_cast<unsigned char>(*it)]);
 
           if (tmp < 0) {
             throw std::runtime_error("Invalid encoded url");
           }
 
-          encoded_char = (16 * tmp);
+          unsigned char encoded_char = static_cast<char>(16 * tmp);
 
           if (++it == this->end()) {
             throw std::runtime_error("Invalid encoded url");
           }
 
-          tmp = kHexToNum[static_cast<std::size_t>(*it)];
+          tmp = kHexToNum[static_cast<unsigned char>(*it)];
 
           if (tmp < 0) {
             throw std::runtime_error("Invalid encoded url");
           }
 
-          encoded_char += tmp;
+          encoded_char += static_cast<unsigned char>(tmp);
 
-          it++;
+          ++it;
 
           o << encoded_char;
         } else {
