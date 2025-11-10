@@ -30,17 +30,17 @@ namespace jmixin {
     String(T &&str): std::string(str) {
     }
 
-    Iterator<String> iterator() const {
-      return Iterator<String>(*this);
+    [[nodiscard]] Iterator<String> iterator() const {
+      return {*this};
     }
 
-    std::wstring wide() const {
+    [[nodiscard]] std::wstring wide() const {
       std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
       return converter.from_bytes(*this);
     }
 
-    String hex() {
+    [[nodiscard]] String hex() const {
       static const char *hex_table[256] = {
         "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f",
         "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f",
@@ -65,13 +65,13 @@ namespace jmixin {
       result.reserve(size() * 2);
 
       for (auto ch: *this) {
-        result = result + hex_table[static_cast<std::size_t>(ch)];
+        result = result + hex_table[static_cast<std::size_t>(static_cast<unsigned char>(ch))];
       }
 
       return result;
     }
 
-    String lower_case() {
+    [[nodiscard]] String lower_case() const {
       String thiz{*this};
 
       std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
@@ -81,7 +81,7 @@ namespace jmixin {
       return thiz;
     }
 
-    String upper_case() {
+    [[nodiscard]] String upper_case() const {
       String thiz{*this};
 
       std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
@@ -91,7 +91,7 @@ namespace jmixin {
       return thiz;
     }
 
-    String swap_case() {
+    [[nodiscard]] String swap_case() const {
       String thiz{*this};
 
       std::for_each(std::begin(thiz), std::end(thiz), [](auto &ch) {
@@ -105,7 +105,7 @@ namespace jmixin {
       return thiz;
     }
 
-    String captalize() {
+    [[nodiscard]] String captalize() const {
       String thiz{*this};
 
       for (auto &ch: thiz) {
@@ -119,12 +119,12 @@ namespace jmixin {
       return thiz;
     }
 
-    String uncaptalize() {
+    [[nodiscard]] String uncaptalize() const {
       String thiz{*this};
 
       for (auto &ch: thiz) {
         if (isalnum(ch) != 0) {
-          ch = static_cast<char>(toupper(ch));
+          ch = static_cast<char>(tolower(ch));
 
           break;
         }
@@ -133,26 +133,26 @@ namespace jmixin {
       return thiz;
     }
 
-    String left_trim() {
+    [[nodiscard]] String left_trim() const {
       return remove("^[[:space:]]*");
     }
 
-    String right_trim() {
+    [[nodiscard]] String right_trim() const {
       return remove("[[:space:]]*$");
     }
 
-    String trim() {
+    [[nodiscard]] String trim() const {
       return left_trim().right_trim();
     }
 
-    String replace(const String &pattern, const String &value) {
+    [[nodiscard]] String replace(const String &pattern, const String &value) const {
       const std::regex r{pattern, std::regex_constants::nosubs | std::regex_constants::extended};
 
       return std::regex_replace(*this, r, value);
     }
 
-    String replace_groups(const String &pattern, const String &format,
-                          std::regex_constants::match_flag_type flags = std::regex_constants::match_default) {
+    [[nodiscard]] String replace_groups(const String &pattern, const String &format,
+                          std::regex_constants::match_flag_type flags = std::regex_constants::match_default) const {
       const std::regex r{pattern, std::regex_constants::extended};
 
       return std::regex_replace(*this, r, format, flags);
@@ -167,7 +167,7 @@ namespace jmixin {
 
       for (std::sregex_iterator i = std::sregex_iterator(this->begin(), this->end(), r, flags);
            i != std::sregex_iterator(); i++) {
-        std::smatch m = *i;
+        std::smatch const &m = *i;
 
         Iterator<std::vector<String> > groupsResult;
 
@@ -183,14 +183,14 @@ namespace jmixin {
       return result;
     }
 
-    bool match(const String &pattern,
+    [[nodiscard]] bool match(const String &pattern,
                std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       const std::regex r{pattern, flags};
 
       return std::regex_match(*this, r);
     }
 
-    bool match_any(std::initializer_list<String> patterns,
+    [[nodiscard]] bool match_any(std::initializer_list<String> patterns,
                    std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       for (auto &pattern: patterns) {
         if (match(pattern, flags) == true) {
@@ -201,7 +201,7 @@ namespace jmixin {
       return false;
     }
 
-    bool match_none(std::initializer_list<String> patterns,
+    [[nodiscard]] bool match_none(std::initializer_list<String> patterns,
                     std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       for (auto &pattern: patterns) {
         if (match(pattern, flags) == true) {
@@ -212,7 +212,7 @@ namespace jmixin {
       return true;
     }
 
-    Iterator<std::vector<String> > search(const String &pattern,
+    [[nodiscard]] Iterator<std::vector<String> > search(const String &pattern,
                                           std::regex_constants::syntax_option_type flags = std::regex_constants::icase)
     const {
       const std::regex r(pattern, flags);
@@ -230,7 +230,7 @@ namespace jmixin {
       return Iterator{result};
     }
 
-    bool contains(const String &pattern,
+    [[nodiscard]] bool contains(const String &pattern,
                   std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       if (search(pattern, flags).size() > 0) {
         return true;
@@ -239,7 +239,7 @@ namespace jmixin {
       return false;
     }
 
-    bool contains_any(std::initializer_list<String> values,
+    [[nodiscard]] bool contains_any(std::initializer_list<String> values,
                       std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       for (auto &value: values) {
         if (contains(value, flags) == true) {
@@ -250,7 +250,7 @@ namespace jmixin {
       return false;
     }
 
-    bool contains_none(std::initializer_list<String> values,
+    [[nodiscard]] bool contains_none(std::initializer_list<String> values,
                        std::regex_constants::syntax_option_type flags = std::regex_constants::icase) const {
       for (auto &value: values) {
         if (contains(value, flags) == true) {
@@ -261,7 +261,7 @@ namespace jmixin {
       return true;
     }
 
-    bool starts_with(const String &value) const {
+    [[nodiscard]] bool starts_with(const String &value) const {
       if (value.size() > this->size()) {
         return false;
       }
@@ -278,7 +278,7 @@ namespace jmixin {
       return true;
     }
 
-    bool starts_with_any(std::initializer_list<String> values) const {
+    [[nodiscard]] bool starts_with_any(std::initializer_list<String> values) const {
       for (auto &value: values) {
         if (starts_with(value) == true) {
           return true;
@@ -288,7 +288,7 @@ namespace jmixin {
       return false;
     }
 
-    bool starts_with_none(std::initializer_list<String> values) const {
+    [[nodiscard]] bool starts_with_none(std::initializer_list<String> values) const {
       for (auto &value: values) {
         if (starts_with(value) == true) {
           return false;
@@ -298,7 +298,7 @@ namespace jmixin {
       return true;
     }
 
-    bool ends_with(const String &value) const {
+    [[nodiscard]] bool ends_with(const String &value) const {
       if (value.size() > this->size()) {
         return false;
       }
@@ -315,7 +315,7 @@ namespace jmixin {
       return true;
     }
 
-    bool ends_with_any(std::initializer_list<String> values) const {
+    [[nodiscard]] bool ends_with_any(std::initializer_list<String> values) const {
       for (auto &value: values) {
         if (ends_with(value) == true) {
           return true;
@@ -325,7 +325,7 @@ namespace jmixin {
       return false;
     }
 
-    bool ends_with_none(std::initializer_list<String> values) const {
+    [[nodiscard]] bool ends_with_none(std::initializer_list<String> values) const {
       for (auto &value: values) {
         if (ends_with(value) == true) {
           return false;
@@ -355,7 +355,7 @@ namespace jmixin {
       return thiz;
     }
 
-    String repeat(std::size_t n, const String &aggregator = {}) const {
+    [[nodiscard]] String repeat(std::size_t n, const String &aggregator = {}) const {
       String result;
 
       result.reserve(this->size() * n);
@@ -371,15 +371,15 @@ namespace jmixin {
       return result;
     }
 
-    String left_repeat(const String &value, std::size_t n, const String &aggregator = {}) const {
+    [[nodiscard]] String left_repeat(const String &value, std::size_t n, const String &aggregator = {}) const {
       return String(value).repeat(n, aggregator) + aggregator + *this;
     }
 
-    String right_repeat(const String &value, std::size_t n, const String &aggregator = {}) const {
+    [[nodiscard]] String right_repeat(const String &value, std::size_t n, const String &aggregator = {}) const {
       return *this + aggregator + String(value).repeat(n, aggregator);
     }
 
-    String align(align align, std::size_t length, const char fill = ' ') const {
+    [[nodiscard]] String align(align align, std::size_t length, const char fill = ' ') const {
       if (this->size() >= length) {
         return *this;
       }
@@ -395,19 +395,19 @@ namespace jmixin {
       return std::string(padding / 2, fill) + *this + std::string(padding / 2 + padding % 2, fill);
     }
 
-    String left(std::size_t length, const char fill = ' ') const {
+    [[nodiscard]] String left(std::size_t length, const char fill = ' ') const {
       return align(align::left, length, fill);
     }
 
-    String right(std::size_t length, const char fill = ' ') const {
+    [[nodiscard]] String right(std::size_t length, const char fill = ' ') const {
       return align(align::right, length, fill);
     }
 
-    String center(std::size_t length, const char fill = ' ') const {
+    [[nodiscard]] String center(std::size_t length, const char fill = ' ') const {
       return align(align::center, length, fill);
     }
 
-    String ellipses(std::size_t length, const String &value = String("...")) const {
+    [[nodiscard]] String ellipses(std::size_t length, const String &value = String("...")) const {
       if (this->size() <= length) {
         return *this;
       }
@@ -415,7 +415,7 @@ namespace jmixin {
       return this->substr(0, length - value.size()) + value;
     }
 
-    Iterator<std::vector<String> > split(const String &pattern = String("\\s")) const {
+    [[nodiscard]] Iterator<std::vector<String> > split(const String &pattern = String("\\s")) const {
       std::vector<String> result;
 
       std::regex r(pattern);
@@ -429,35 +429,35 @@ namespace jmixin {
       return Iterator{result};
     }
 
-    String remove(const String &value) {
+    [[nodiscard]] String remove(const String &value) const {
       return replace(value, "");
     }
 
-    bool is_blank() const {
+    [[nodiscard]] bool is_blank() const {
       return match("[[:blank:]]*") or match("[[:space:]]*");
     }
 
-    bool is_lower_case() const {
+    [[nodiscard]] bool is_lower_case() const {
       return match("[[:lower:][:digit:][:graph:][:punct:][:space:]]*");
     }
 
-    bool is_upper_case() const {
+    [[nodiscard]] bool is_upper_case() const {
       return match("[[:upper:][:digit:][:graph:][:punct:][:space:]]*");
     }
 
-    bool is_alpha() const {
+    [[nodiscard]] bool is_alpha() const {
       return match("[[:alpha:]]*");
     }
 
-    bool is_number() const {
+    [[nodiscard]] bool is_number() const {
       return match("[[:digit:]]*.?[[:digit:]]*");
     }
 
-    bool is_alpha_numeric() const {
+    [[nodiscard]] bool is_alpha_numeric() const {
       return match("[[:alnum:]]*");
     }
 
-    String normalize() const {
+    [[nodiscard]] String normalize() const {
       auto values = this->search("(\\w+)");
 
       String result;
@@ -469,7 +469,7 @@ namespace jmixin {
       return result.substr(0, result.size() - 1);
     }
 
-    String encode_base64(
+    [[nodiscard]] String encode_base64(
       const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const {
       String out;
       int val = 0;
@@ -497,7 +497,7 @@ namespace jmixin {
       return out;
     }
 
-    String decode_base64(
+    [[nodiscard]] String decode_base64(
       const String &dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/") const {
       std::vector<int> v(256, -1);
       String out;
@@ -528,7 +528,7 @@ namespace jmixin {
     }
 
 
-    std::size_t levenshtein(const String &target, std::size_t insert_cost = 1, std::size_t delete_cost = 1,
+    [[nodiscard]] std::size_t levenshtein(const String &target, std::size_t insert_cost = 1, std::size_t delete_cost = 1,
                             std::size_t replace_cost = 1) const {
       const String &source = *this;
 
@@ -568,7 +568,7 @@ namespace jmixin {
       return lev_dist[min_size];
     }
 
-    double dice_coefficient(const String &target) const {
+    [[nodiscard]] double dice_coefficient(const String &target) const {
       std::set<String> string1_bigrams;
       std::set<String> string2_bigrams;
 
@@ -605,7 +605,7 @@ namespace jmixin {
       return String{fmt::vformat(*this, fmt::make_format_args(args...))};
     }
 
-    String asciify() {
+    [[nodiscard]] String asciify() const {
       static struct {
         int id;
         const char *key;
