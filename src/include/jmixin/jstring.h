@@ -34,11 +34,13 @@ namespace jmixin {
       return {*this};
     }
 
+		/*
     [[nodiscard]] std::wstring wide() const {
       std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
       return converter.from_bytes(*this);
     }
+		*/
 
     [[nodiscard]] String hex() const {
       static const char *hex_table[256] = {
