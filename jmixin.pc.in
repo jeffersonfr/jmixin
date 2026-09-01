@@ -10,5 +10,5 @@ Version: @PROJECT_VERSION@
 Requires: @PC_REQ_PUB@
 Requires.private: @PC_REQ_PRIVATE@
 Cflags: -I"${includedir}" 
-Libs: -L"${libdir}" -ljmixin
-Libs.private: -L"${libdir}" -ljmixin @PC_LIBS_PRIVATE@
+Libs: -L"${libdir}"
+Libs.private: -L"${libdir}" @PC_LIBS_PRIVATE@
